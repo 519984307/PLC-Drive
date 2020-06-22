@@ -1,0 +1,12 @@
+#ifndef LOGMANAGER_GLOBAL_H
+#define LOGMANAGER_GLOBAL_H
+
+#include <QtCore/qglobal.h>
+
+#if defined(LOGMANAGER_LIBRARY)
+#  define LOGMANAGERSHARED_EXPORT Q_DECL_EXPORT
+#else
+#  define LOGMANAGERSHARED_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // LOGMANAGER_GLOBAL_H
