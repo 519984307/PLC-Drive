@@ -28,7 +28,6 @@ public:
     {
         return m_moduleName;
     }
-
 private:
    QString m_moduleName;
    uchar *tempOutputData;
@@ -39,6 +38,8 @@ private:
    bool m_InitOk;
    int m_InBeginBytePos;
    int m_OutBeginBytePos;
+   ppcmdstru m_absstru;
+   int m_axisid;
 private:
    void GetAxisVarParamValue(QString);
    void GetAxisBeginBytePos();

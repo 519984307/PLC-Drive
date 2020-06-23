@@ -44,16 +44,13 @@ void G00_Pulgin::Initialization()
 void G00_Pulgin::SetModuleParam(cmdstru stru)
 {
    // GetAxisVarParamValue(orderparam);//Var str spilt
+    m_absstru = stru.ppstru;
+    m_axisid = stru.ppstru.dataheader.badrID;
+
 }
 
 void G00_Pulgin::RunModule()
 {
-    //todo call command for GET PARAM SET PARAM
-    if(m_axisparamvec.size() != 5) //分別代表 軸名字 軸加速度 軸減速度 軸速度 軸位置
-    {
-        m_InitOk = false;
-        return;
-    }
     GetAxisBeginBytePos();
     if(m_InBeginBytePos < 0|| m_OutBeginBytePos < 0)
     {
@@ -61,7 +58,6 @@ void G00_Pulgin::RunModule()
         return;
     }
     //todo init set speed pos acc dec s_on
-    qDebug()<<QDateTime::currentDateTime()<<"g00: RunModule";
     SetAxisCWBit6();//bit 設置爲0
     SetAxisModel();
     SetAxisParam();
@@ -91,7 +87,7 @@ int  G00_Pulgin::GetExcResult(QString &strMsg)
         {
             iresult = -99;
             StopAxis();
-            strMsg = QString("%1 %2 Terminate!").arg(m_moduleName).arg(m_axisparamvec[0]);
+            strMsg = QString("%1 %2 Terminate!").arg(m_moduleName).arg(m_axisid);
              qDebug()<<QDateTime::currentDateTime()<<"G00::"<<iresult<<strMsg;
             return iresult;
         }
@@ -101,7 +97,7 @@ int  G00_Pulgin::GetExcResult(QString &strMsg)
         int ireturn = GetInputData(curPos);
         if(ireturn == 0) //无故障信号
         {
-//            if(qAbs(m_axisparamvec[4]- curPos) > 200)
+//            if(qAbs(m_absstru.pos- curPos) > 200)
 //            {
 //                isInp = false;
 //            }
@@ -111,7 +107,7 @@ int  G00_Pulgin::GetExcResult(QString &strMsg)
         else if(ireturn == 1)
         {
             iresult = 1;
-            strMsg = QString("%1 axis run ok").arg(m_axisparamvec[0]);
+            strMsg = QString("%1 axis run ok").arg(m_axisid);
              qDebug()<<QDateTime::currentDateTime()<<"G00::"<<iresult<<strMsg;
             break;
         }
@@ -119,7 +115,7 @@ int  G00_Pulgin::GetExcResult(QString &strMsg)
         {
             iresult = -4;
             StopAxis();
-            strMsg = QString("%1 axis %2 return error").arg(m_moduleName).arg(m_axisparamvec[0]);
+            strMsg = QString("%1 axis %2 return error").arg(m_moduleName).arg(m_axisid);
             qDebug()<<QDateTime::currentDateTime()<<"G00::"<<iresult<<strMsg;
             return iresult;
         }
@@ -128,7 +124,7 @@ int  G00_Pulgin::GetExcResult(QString &strMsg)
         {
            //  WriteVar(200,9,curPos);
             iresult = 1;
-            strMsg = QString("%1 axis run ok").arg(m_axisparamvec[0]);
+            strMsg = QString("%1 axis run ok").arg(m_axisid);
              qDebug()<<QDateTime::currentDateTime()<<"G00::"<<iresult<<strMsg;
             break;
         }
@@ -209,21 +205,20 @@ void G00_Pulgin::GetAxisBeginBytePos()
 {
     if(MyShareconfig::GetInstance()->hwconfigstru.hwconfigInputMap.contains(0))//have ec type
     {
-        if(MyShareconfig::GetInstance()->hwconfigstru.hwconfigInputMap[0].contains(m_axisparamvec[0]))//m_axisparamvec[0] addr
+        if(MyShareconfig::GetInstance()->hwconfigstru.hwconfigInputMap[0].contains(m_axisid))//addr
         {
-            if(MyShareconfig::GetInstance()->hwconfigstru.hwconfigInputMap[0][m_axisparamvec[0]].hwtype == "1")
+            if(MyShareconfig::GetInstance()->hwconfigstru.hwconfigInputMap[0][m_axisid].hwtype == "1")
             {
-                m_InBeginBytePos = MyShareconfig::GetInstance()->hwconfigstru.hwconfigInputMap[0][m_axisparamvec[0]].curPos; //故障代碼在有兩個
+                m_InBeginBytePos = MyShareconfig::GetInstance()->hwconfigstru.hwconfigInputMap[0][m_axisid].curPos; //故障代碼在有兩個
             }
         }
     }
     if(MyShareconfig::GetInstance()->hwconfigstru.hwconfigOutputMap.contains(0))//have ec type
     {
-        if(MyShareconfig::GetInstance()->hwconfigstru.hwconfigOutputMap[0].contains(m_axisparamvec[0]))//m_axisparamvec[0] addr
-        {
-            if(MyShareconfig::GetInstance()->hwconfigstru.hwconfigOutputMap[0][m_axisparamvec[0]].hwtype == "1")
+        if(MyShareconfig::GetInstance()->hwconfigstru.hwconfigOutputMap[0].contains(m_axisid)){//
+            if(MyShareconfig::GetInstance()->hwconfigstru.hwconfigOutputMap[0][m_axisid].hwtype == "1")
             {
-                m_OutBeginBytePos = MyShareconfig::GetInstance()->hwconfigstru.hwconfigOutputMap[0][m_axisparamvec[0]].curPos; //故障代碼在有兩個
+                m_OutBeginBytePos = MyShareconfig::GetInstance()->hwconfigstru.hwconfigOutputMap[0][m_axisid].curPos; //故障代碼在有兩個
             }
         }
     }
@@ -264,6 +259,7 @@ void G00_Pulgin::SetAxisModel()
 
 void G00_Pulgin::SetAxisParam()
 {
+    int pos = m_absstru.pos;
     BaseCalcFun::MemCopyTempData(tempOutputData);
     QVector<QPair<int,int>> tempBytePosNum;
     QPair<int,int> pair;
@@ -273,21 +269,21 @@ void G00_Pulgin::SetAxisParam()
     pair = QPair<int,int>(m_OutBeginBytePos+2,1);
     tempBytePosNum.append(pair);
 
-    BaseAxisOperate::SetAxisPos("I32",4,m_OutBeginBytePos+3,m_axisparamvec[4],tempOutputData);
+    BaseAxisOperate::SetAxisPos("I32",4,m_OutBeginBytePos+3,pos,tempOutputData);
     pair = QPair<int,int>(m_OutBeginBytePos+3,4);
     tempBytePosNum.append(pair);
 
-    BaseAxisOperate::SetAxisSpeed("U32",4,m_OutBeginBytePos+7,m_axisparamvec[3],tempOutputData);
-    pair = QPair<int,int>(m_OutBeginBytePos+7,4);
-    tempBytePosNum.append(pair);
+//    BaseAxisOperate::SetAxisSpeed("U32",4,m_OutBeginBytePos+7,m_axisparamvec[3],tempOutputData);
+//    pair = QPair<int,int>(m_OutBeginBytePos+7,4);
+//    tempBytePosNum.append(pair);
 
-    BaseAxisOperate::SetAxisACC("U32",4,m_OutBeginBytePos+11,m_axisparamvec[1],tempOutputData);
-    pair = QPair<int,int>(m_OutBeginBytePos+11,4);
-    tempBytePosNum.append(pair);
+//    BaseAxisOperate::SetAxisACC("U32",4,m_OutBeginBytePos+11,m_axisparamvec[1],tempOutputData);
+//    pair = QPair<int,int>(m_OutBeginBytePos+11,4);
+//    tempBytePosNum.append(pair);
 
-    BaseAxisOperate::SetAxisDCC("U32",4,m_OutBeginBytePos+15,m_axisparamvec[2],tempOutputData);
-    pair= QPair<int,int>(m_OutBeginBytePos+15,4);
-    tempBytePosNum.append(pair);
+//    BaseAxisOperate::SetAxisDCC("U32",4,m_OutBeginBytePos+15,m_axisparamvec[2],tempOutputData);
+//    pair= QPair<int,int>(m_OutBeginBytePos+15,4);
+//    tempBytePosNum.append(pair);
 
     BaseCalcFun::MemCopyOutputData(tempOutputData,tempBytePosNum);
     QThread::msleep(10);

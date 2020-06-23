@@ -17,7 +17,6 @@ void ExeCommandsFun::SetCommandsParam(uint8_t cmd,cmdstru stru, FunModuleInterfa
     m_funcmd = pfun;
     m_stru = stru;
     cmdname = cmd;
-
 }
 ///
 /// \brief ExeCommandsFun::SlotCommandRun
@@ -33,6 +32,6 @@ void ExeCommandsFun::SlotCommandRun()
         m_funcmd->RunModule();
         iresult = m_funcmd->GetExcResult(strMsg);
         m_funcmd->StopModule();
-        emit signalComandsEnd(cmdname,m_stru,m_taskid);
+        emit signalComandsEnd(cmdname,m_stru,m_taskid,strMsg);
     }
 }

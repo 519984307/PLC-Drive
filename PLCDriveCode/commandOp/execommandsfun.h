@@ -19,7 +19,7 @@ private:
 public slots:
     void SlotCommandRun();
 signals:
-    void signalComandsEnd(uint8_t cmd,cmdstru stru,int taskid);
+    void signalComandsEnd(uint8_t cmd,cmdstru stru,int taskid,QString msg);
 };
 
 #endif // EXECOMMANDSFUN_H

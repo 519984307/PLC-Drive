@@ -9,7 +9,6 @@
 ///读硬件配置的数据的内容,并计算相关ec数据部分的赋值计算的内容
 class  AnalysisDataLib:public QObject
 {
-
 public:
     AnalysisDataLib();
     void LoadPluginsmodule();

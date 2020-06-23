@@ -11,6 +11,8 @@
 #include <QPointer>
 #include "execommandsfun.h"
 #include <QMutex>
+#include "sendcommandsclass.h"
+#include "taskmangerclass.h"
 #define ORDERTHREADNUM 4
 ///
 /// \brief The CommandFunOp class
@@ -24,28 +26,34 @@ public:
     bool InitAllParam();
 public slots:
     void slotRecPlcCmdData(uint8_t funcmd,cmdstru stru);
-private:
+public:
     SerialPortCom m_pserialportob;
     Ec_control  m_ec;
     QPointer<QTimer> m_MonTimer;
-
+    SendCommandsClass m_othercmd;
+    TaskMangerClass m_tasklog;
     //指令线程
     QVector<int> m_threadidvec;
     QMap<int,QMap<QString,FunModuleInterface*>> m_pfunMap;//一个轴对应的 所有的指令 绝对运动 相对运动 等其他指令
     QMap<int,QPair<QThread*,ExeCommandsFun*>> m_pThreadObjMap;
+    QMap<int ,QString> m_runcmd;
 private slots:
     void slotMonitorTimer();
-    void slotRunEnd(uint8_t cmd,cmdstru stru,int taskid);
+    void slotRunEnd(uint8_t cmd,cmdstru stru,int taskid,QString msg);
 private:
     void GetAllAxisID();
     void SetPluginsMap();
     void CmdThreadRun(QString str,cmdstru stru,uint8_t id);
+    void StopRunningCmd(int id);
 private:
     int m_exetaskid;
     int m_rectaskid;
     QVector<int> m_runingtaskid;
-
-
+public://test
+    QMap<int,QVector<int>> m_monitorvalues;
+signals:
+    void signalShowInfo(QString msg);
+    void signaltaskInfo(QString msg);
 };
 
 #endif // COMMANDFUNOP_H

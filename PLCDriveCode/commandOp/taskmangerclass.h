@@ -14,14 +14,13 @@ class TaskMangerClass:public QObject
     }Task_queueStru;
 public:
     TaskMangerClass();
-private:
     void  AddHandleTask(Task_queueStru stru);
     Task_queueStru  GetCurHandleTask();
     int m_exetaskid;
     int m_rectaskid;
     //存储任务ID
     QQueue<Task_queueStru> m_taskqueue;
-   void RecoderTaskCmd(uint8_t funcmd,cmdstru stru);
+   QString RecoderTaskCmd(int index,uint8_t funcmd,cmdstru stru);
 
 };
 
