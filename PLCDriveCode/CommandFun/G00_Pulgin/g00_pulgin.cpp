@@ -64,7 +64,7 @@ void G00_Pulgin::RunModule()
     if(!SetAxisInit())
     {
         m_InitOk = false;
-         qDebug()<<"SetAxisInit:error";
+         qDebug()<<"SetAxisInit函数出现故障错误";
         return;
     }
 }
@@ -76,7 +76,7 @@ int  G00_Pulgin::GetExcResult(QString &strMsg)
     {
         iresult = -2;
         strMsg = "G00 初始化參數設置錯誤";
-        qDebug()<<QDateTime::currentDateTime()<<"G00::"<<iresult<<strMsg;
+        qDebug()<<QDateTime::currentDateTime()<<"G00:"<<iresult<<strMsg;
         return iresult;
     }
     bool isInp = false;
@@ -296,9 +296,9 @@ bool G00_Pulgin::SetAxisInit()
     QVector<int> tempVec;
     tempVec.append(m_OutBeginBytePos);
     BaseAxisOperate::SetAxisExciteOff(m_tempOFFSON,tempVec,tempOutputData);
-    QThread::msleep(50);
+    QThread::msleep(10);//延时时间原来50ms
     BaseAxisOperate::SetAxisExcite(m_tempOutOP,tempVec,tempOutputData);
-    QThread::msleep(50);
+    QThread::msleep(10);//延时时原来50ms
     if(CheckAxisInit())
     {
         return true;

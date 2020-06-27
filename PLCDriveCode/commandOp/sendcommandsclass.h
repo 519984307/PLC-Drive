@@ -19,6 +19,9 @@ public:
     QVector<int> GetCurValuefun(QVector<int>axisidvec,int role);
     void GetAxisBeginBytePos(int axisid,int &inbeginbytepos,int &outbeginbytepos);
     void SetAxisParam(QVector<uint>axisidvec,int id);
+    void SetAxisReset(int id);
+    void SetAxisSon(int id);
+    void SetAxisSoff(int id);
 private:
     QVector<QPair<int,int>> m_tempInOP;
     enum mointorroles{

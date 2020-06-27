@@ -242,9 +242,9 @@ void CommandFunOp::slotRunEnd(uint8_t cmd,cmdstru stru, int taskid,QString msg)
         if(m_runcmd.contains(id))
         {
             m_runcmd.remove(id);
-        }
-        MyShareconfig::GetInstance()->m_Runstate[id] = 0;// 用于检查指令运行状态问题
+        } 
     }
+     MyShareconfig::GetInstance()->m_Runstate[id] = 0;// 用于检查指令运行状态问题
     //运动指令完成的索引号
     QString info =  "["+QString::number(taskid) + "]" + " 结束指令信息:"+cmdstr+":"+msg;
     CoreLog::QLog_Info("Test",info);

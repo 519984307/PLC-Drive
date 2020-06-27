@@ -36,7 +36,7 @@ MainWindow::MainWindow(QWidget *parent) :
     {
         for(int j = 0; j < 8;++j)
         {
-            m_pmonitortable->setColumnWidth(j,desk_rect.width()/7-20);
+            m_pmonitortable->setColumnWidth(j,desk_rect.width()/7-5);
             QTableWidgetItem *item = new  QTableWidgetItem();
             item->setText("");
             m_pmonitortable->setItem(i,j,item);
@@ -50,6 +50,8 @@ MainWindow::MainWindow(QWidget *parent) :
     lay->addWidget(m_pmonitortable);
     QLabel *tasklabel = new QLabel ("执行的任务信息",this);
     m_ptaskmsg = new QTextEdit(this);
+    m_ptaskmsg->document()->setMaximumBlockCount(100);
+    m_ptaskmsg->setAcceptRichText(true);
     lay->addWidget(tasklabel);
     lay->addWidget(m_ptaskmsg);
 
@@ -61,11 +63,6 @@ MainWindow::MainWindow(QWidget *parent) :
     m_timer->start(200);
     connect(&ob,&CommandFunOp::signalShowInfo,this,&MainWindow::slotshowloginfo);
     connect(&ob,&CommandFunOp::signaltaskInfo,this,&MainWindow::slotRecordertaskinfo);
-
-//    m_ptaskmsg->append("<font color=\"#FF0000\">红色字体</font> ");
-//    m_ptaskmsg->append("<font color=\"#00FF00\">绿色字体</font> ");
-//    m_ptaskmsg->append("<font color=\"#0000FF\">蓝色字体</font> ");
-
     QString msg = "接受指令索引运行指令";
     slotRecordertaskinfo(msg);
     msg = " 执行编号结束指令";
@@ -130,12 +127,12 @@ void MainWindow::slotRecordertaskinfo(QString msg)
         QString str;
         if(msg.contains("结束"))
         {
-         str = QString("<font color=\"#FF0000\">%1</font> ").arg(msg);
+         str = QString("<font color=\"#00FF00\">%1</font> ").arg(msg);
         }
         else{
-             str = QString("<font color=\"#00FF00\">%1</font> ").arg(msg);
+             str = QString("<font color=\"#0000FF\">%1</font> ").arg(msg);
         }
-        m_ptaskmsg->moveCursor(QTextCursor::Start);
+        //m_ptaskmsg->moveCursor(QTextCursor::End);
          m_ptaskmsg->append(str);
     }
 }

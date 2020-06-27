@@ -2,7 +2,7 @@
 
 SendCommandsClass::SendCommandsClass()
 {
-   m_tempInOP.clear();
+    m_tempInOP.clear();
 }
 
 SendCommandsClass::~SendCommandsClass()
@@ -39,6 +39,7 @@ void SendCommandsClass::StopComandsfun(QVector<int>axisidvec)
     }
     if(InOutPutData::GetInstance()->outPutNum <= 0)
         return;
+      QMutexLocker locker(&MyShareconfig::GetInstance()->m_mutex);
     uchar *  tempOutputData = new uchar[InOutPutData::GetInstance()->outPutNum];
     BaseCalcFun::MemCopyTempData(tempOutputData);
     QVector<QPair<int,int>> tempBytePosNum;
@@ -155,6 +156,7 @@ void SendCommandsClass::GetAxisBeginBytePos(int axisid,int &inbeginbytepos,int &
 ///设置轴参数
 void SendCommandsClass::SetAxisParam(QVector<uint> values,int id)
 {
+      QMutexLocker locker(&MyShareconfig::GetInstance()->m_mutex);
     int axiscurpos= -1;
     int OutBeginBytePos = -1;
     GetAxisBeginBytePos(id,axiscurpos,OutBeginBytePos);
@@ -184,6 +186,63 @@ void SendCommandsClass::SetAxisParam(QVector<uint> values,int id)
 
     BaseCalcFun::MemCopyOutputData(tempOutputData,tempBytePosNum);
     //QThread::msleep(10);
+}
+///
+/// \brief SendCommandsClass::SetAxisReset
+/// \param id
+///  轴复位指令
+void SendCommandsClass::SetAxisReset(int id)
+{
+   QMutexLocker locker(&MyShareconfig::GetInstance()->m_mutex);
+    int axiscurpos= -1;
+    int OutBeginBytePos = -1;
+    GetAxisBeginBytePos(id,axiscurpos,OutBeginBytePos);
+    if((axiscurpos==-1 )|| (OutBeginBytePos==-1))
+    {
+        return;
+    }
+    if(InOutPutData::GetInstance()->outPutNum <= 0)
+        return;
+    BaseAxisOperate::SetAxisReset(7,OutBeginBytePos);//設置軸復位
+}
+///
+/// \brief SendCommandsClass::SetAxisSon
+/// \param id
+///设置son指令
+void SendCommandsClass::SetAxisSon(int id)
+{
+    int axiscurpos= -1;
+    int OutBeginBytePos = -1;
+    GetAxisBeginBytePos(id,axiscurpos,OutBeginBytePos);
+    if((axiscurpos==-1 )|| (OutBeginBytePos==-1))
+    {
+        return;
+    }
+//    QMutexLocker locker(&MyShareconfig::GetInstance()->m_mutex);
+//    if(!BaseAxisOperate::CheckAxisExcited(m_tempInOP,2,axiscurpos+2))
+//        return ;
+//    BaseAxisOperate::SetAxisExcite(m_tempOutOP,tempVec,tempOutputData);
+//    QThread::msleep(10);//延时时原来50ms
+
+}
+///
+/// \brief SendCommandsClass::SetAxisSoff
+/// \param id
+///设置soff指令
+void SendCommandsClass::SetAxisSoff(int id)
+{
+      QVector<int> tempVec;
+      int axiscurpos= -1;
+      int OutBeginBytePos = -1;
+      GetAxisBeginBytePos(id,axiscurpos,OutBeginBytePos);
+      if((axiscurpos==-1 )|| (OutBeginBytePos==-1))
+      {
+          return;
+      }
+      tempVec.append(OutBeginBytePos);
+//       QMutexLocker locker(&MyShareconfig::GetInstance()->m_mutex);
+//      BaseAxisOperate::SetAxisExciteOff(m_tempOFFSON,tempVec,tempOutputData);
+//      QThread::msleep(10);//延时时间原来50ms
 }
 
 
