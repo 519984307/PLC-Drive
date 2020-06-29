@@ -51,6 +51,12 @@ QString TaskMangerClass::RecoderTaskCmd(int index,uint8_t funcmd, cmdstru stru)
         info = QString("设置轴id:%1的绝对位置为:%2;").arg(stru.ppstru.dataheader.badrID).arg(stru.ppstru.pos);
         break;
     }
+    case cmdname::MOV_RELPP:
+    {
+        name = "MOV_RELPP";
+        info = QString("设置轴id:%1的相对位置为:%2;").arg(stru.ppstru.dataheader.badrID).arg(stru.ppstru.pos);
+        break;
+    }
     case  cmdname::STOP:
     case  cmdname::STOPDEC:
     {     name = "STOP";

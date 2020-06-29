@@ -150,17 +150,29 @@ void SerialPortCom::Dataprocessingfun(uint8_t *data, uint8_t len)
         switch (cmd) {
         case cmdname::None:
             break;
-        case cmdname::MOV_ABSPP:
+        case cmdname::MOV_RELPP:
+        {
             scmdstru.ppstru.dataheader = m_boardData.dataheader;
             atoi32 pos;
             memcpy(m_boardData.data,&tempdata[alen+2],lenvalue);
             memcpy(pos.a,&tempdata[alen+2],lenvalue);
             scmdstru.ppstru.pos =pos.x;
             break;
+        }
+        case cmdname::MOV_ABSPP:
+        {
+            scmdstru.ppstru.dataheader = m_boardData.dataheader;
+            atoi32 pos;
+            memcpy(m_boardData.data,&tempdata[alen+2],lenvalue);
+            memcpy(pos.a,&tempdata[alen+2],lenvalue);
+            scmdstru.ppstru.pos =pos.x;
+            break;
+        }
         case cmdname::STOPDEC:
             scmdstru.stopstru.dataheader =  m_boardData.dataheader;
             break;
         case cmdname::SETACCDEC:
+        {
             scmdstru.setparamstru.dataheader = m_boardData.dataheader;
             atou32  param;
             memcpy(param.a,&tempdata[alen+2],4);
@@ -170,6 +182,7 @@ void SerialPortCom::Dataprocessingfun(uint8_t *data, uint8_t len)
             memcpy(param.a,&tempdata[alen+2+4+4],4);
             scmdstru.setparamstru.speed =  param.x;
             break;
+        }
         default:
             break;
         }

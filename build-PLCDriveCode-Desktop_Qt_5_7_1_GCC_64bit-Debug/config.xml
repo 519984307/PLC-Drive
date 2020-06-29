@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--size(can单位bit/ec单位byte) haType(如果是轴配置为1/IO配置为0)--> 
+<data> 
+  <netName>enp2s0</netName> 
+  <INPUT> 
+    <类型 type="ec"> 
+      <property addr="0" size="9"  haType="1"/>  
+      <!--property addr="1" size="9"   haType="1"/-->  
+      <!--property addr="2" size="2"   haType="1"/>  
+    <property addr="3" size="2"   haType="1"/> 
+    <property addr="4" size="2"   haType="1"/--> 
+    </类型>  
+    <类型 type="can"> 
+      <property addr="0" size="10"  haType="0"/>  
+      <property addr="1" size="9"   haType="1"/>  
+      <property addr="2" size="10"  haType="0"/>  
+    </类型> 
+  </INPUT>  
+  <OUTPUT>
+    <类型 type="ec"> 
+      <property addr="0" size="19"  haType="1"/>  
+      <!--property addr="1" size="19"  haType="1"/-->  
+    </类型>  
+    <类型 type="can"> 
+      <property addr="0" size="10"  haType="0"/>  
+      <property addr="1" size="9"   haType="1"/>  
+      <property addr="2" size="10"  haType="0"/>  
+    </类型> 
+  </OUTPUT> 
+</data>
+

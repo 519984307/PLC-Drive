@@ -23,7 +23,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 INCLUDEPATH +=. SDK/include
-LIBS += -L../PLCDriveCode/SDK/lib -lec_control -lLogManager
+ LIBS += -L../PLCDriveCode/SDK/lib -lec_control -lLogManager
 CONFIG += c++11
 
 SOURCES += \
@@ -37,7 +37,8 @@ SOURCES += \
     commandOp/execommandsfun.cpp \
     commandOp/sendcommandsclass.cpp \
     commandOp/taskmangerclass.cpp \
-    CommandFun/G00_Pulgin/setaccdecspeedcmd.cpp
+    CommandFun/G00_Pulgin/setaccdecspeedcmd.cpp \
+    CommandFun/G00_Pulgin/relmovcommand.cpp
 
 
 HEADERS += \
@@ -54,7 +55,8 @@ HEADERS += \
     commandOp/execommandsfun.h \
     commandOp/sendcommandsclass.h \
     commandOp/taskmangerclass.h \
-    CommandFun/G00_Pulgin/setaccdecspeedcmd.h
+    CommandFun/G00_Pulgin/setaccdecspeedcmd.h \
+    CommandFun/G00_Pulgin/relmovcommand.h
 
 
 FORMS += \

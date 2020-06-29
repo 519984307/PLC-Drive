@@ -101,9 +101,11 @@ void CommandFunOp::slotRecPlcCmdData(uint8_t funcmd,cmdstru stru)
         break;
     }
     case cmdname::MOV_RELPP:
+    {
         id = stru.ppstru.dataheader.badrID;
         cmd = "MOV_RELPP";
         break;
+    }
     case cmdname::MOV_SPEED:
         break;
     case cmdname::STOPDEC:
@@ -165,11 +167,11 @@ void CommandFunOp::slotRecPlcCmdData(uint8_t funcmd,cmdstru stru)
     }
     if((cmd =="MOV_ABSPP") || (cmd =="MOV_RELPP")|| (cmd == "MOV_ORG") || (cmd == "MOV_SPEED"))
     {
-        CmdThreadRun(cmd,stru,id);
+        CmdThreadRun(cmd,stru,id,funcmd);
     }
-  QString taskinfo =   m_tasklog.RecoderTaskCmd(m_exetaskid,funcmd,stru);
- taskinfo= taskinfo +" ;接受到的索引号："+m_rectaskid;
-  emit signaltaskInfo(taskinfo);
+    QString taskinfo =   m_tasklog.RecoderTaskCmd(m_exetaskid,funcmd,stru);
+    taskinfo= taskinfo +" ;接受到的索引号："+m_rectaskid;
+    emit signaltaskInfo(taskinfo);
 }
 ///
 /// \brief CommandFunOp::slotMonitorTimer
@@ -202,7 +204,7 @@ void CommandFunOp::slotMonitorTimer()
             m_monitorvalues.insert(6,Excite);
         }
     }
-  //  监视串口状态通迅
+    //监视串口状态通迅
 }
 ///
 /// \brief CommandFunOp::slotRunEnd
@@ -242,9 +244,9 @@ void CommandFunOp::slotRunEnd(uint8_t cmd,cmdstru stru, int taskid,QString msg)
         if(m_runcmd.contains(id))
         {
             m_runcmd.remove(id);
-        } 
+        }
     }
-     MyShareconfig::GetInstance()->m_Runstate[id] = 0;// 用于检查指令运行状态问题
+    MyShareconfig::GetInstance()->m_Runstate[id] = 0;// 用于检查指令运行状态问题
     //运动指令完成的索引号
     QString info =  "["+QString::number(taskid) + "]" + " 结束指令信息:"+cmdstr+":"+msg;
     CoreLog::QLog_Info("Test",info);
@@ -302,7 +304,7 @@ void CommandFunOp::SetPluginsMap()
 /// \param stru
 /// \param id
 ///
-void CommandFunOp::CmdThreadRun(QString str, cmdstru stru, uint8_t id)
+void CommandFunOp::CmdThreadRun(QString str, cmdstru stru, uint8_t id,uint8_t cmd)
 {
     if(m_pfunMap.contains(id))
     {
@@ -321,7 +323,7 @@ void CommandFunOp::CmdThreadRun(QString str, cmdstru stru, uint8_t id)
                 connect(pthread,&QThread::started,exerunobj,&ExeCommandsFun::SlotCommandRun,Qt::QueuedConnection);
                 connect(exerunobj,&ExeCommandsFun::signalComandsEnd,this,&CommandFunOp::slotRunEnd,Qt::QueuedConnection);
                 m_exetaskid++;
-                exerunobj->SetCommandsParam(MOV_ABSPP,stru,cmdob,m_exetaskid);
+                exerunobj->SetCommandsParam(cmd,stru,cmdob,m_exetaskid);
                 m_runingtaskid.append(m_exetaskid);
                 m_runcmd.insert(id,str);
                 MyShareconfig::GetInstance()->m_Runstate[id] = 1;
@@ -331,7 +333,7 @@ void CommandFunOp::CmdThreadRun(QString str, cmdstru stru, uint8_t id)
                 if(!m_pThreadObjMap[id].first->isRunning())
                 {
                     m_exetaskid++;
-                    m_pThreadObjMap[id].second->SetCommandsParam(MOV_ABSPP,stru,m_pfunMap[id][str],m_exetaskid);
+                    m_pThreadObjMap[id].second->SetCommandsParam(cmd,stru,m_pfunMap[id][str],m_exetaskid);
                     m_runingtaskid.append(m_exetaskid);
                     m_runcmd.insert(id,str);
                     MyShareconfig::GetInstance()->m_Runstate[id] =1;

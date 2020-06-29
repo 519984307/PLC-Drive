@@ -76,7 +76,7 @@ int  G00_Pulgin::GetExcResult(QString &strMsg)
     {
         iresult = -2;
         strMsg = "G00 初始化參數設置錯誤";
-        qDebug()<<QDateTime::currentDateTime()<<"G00:"<<iresult<<strMsg;
+        qDebug()<<QDateTime::currentDateTime()<<"MOV_ABSPP:"<<iresult<<strMsg;
         return iresult;
     }
     bool isInp = false;
@@ -87,8 +87,8 @@ int  G00_Pulgin::GetExcResult(QString &strMsg)
         {
             iresult = -99;
             StopAxis();
-            strMsg = QString("%1 %2 Terminate!").arg(m_moduleName).arg(m_axisid);
-             qDebug()<<QDateTime::currentDateTime()<<"G00::"<<iresult<<strMsg;
+            strMsg = QString("指令名字：%1，指令id： %2，指令位置：%3, Terminate!").arg(m_moduleName).arg(m_axisid).arg(m_absstru.pos);
+             qDebug()<<QDateTime::currentDateTime()<<"MOV_ABSPP::"<<iresult<<strMsg;
             return iresult;
         }
         //dosomething
@@ -107,16 +107,16 @@ int  G00_Pulgin::GetExcResult(QString &strMsg)
         else if(ireturn == 1)
         {
             iresult = 1;
-            strMsg = QString("%1 axis run ok").arg(m_axisid);
-             qDebug()<<QDateTime::currentDateTime()<<"G00::"<<iresult<<strMsg;
+            strMsg =QString("指令名字：%1，指令id： %2，指令位置：%3, axis run ok!").arg(m_moduleName).arg(m_axisid).arg(m_absstru.pos);
+             qDebug()<<QDateTime::currentDateTime()<<"MOV_ABSPP::"<<iresult<<strMsg;
             break;
         }
         else //故障信号
         {
             iresult = -4;
             StopAxis();
-            strMsg = QString("%1 axis %2 return error").arg(m_moduleName).arg(m_axisid);
-            qDebug()<<QDateTime::currentDateTime()<<"G00::"<<iresult<<strMsg;
+            strMsg = QString("指令名字：%1，指令id： %2，指令位置：%3, axis return error!").arg(m_moduleName).arg(m_axisid).arg(m_absstru.pos);
+            qDebug()<<QDateTime::currentDateTime()<<"MOV_ABSPP::"<<iresult<<strMsg;
             return iresult;
         }
         //所有的轴ok
@@ -125,7 +125,7 @@ int  G00_Pulgin::GetExcResult(QString &strMsg)
            //  WriteVar(200,9,curPos);
             iresult = 1;
             strMsg = QString("%1 axis run ok").arg(m_axisid);
-             qDebug()<<QDateTime::currentDateTime()<<"G00::"<<iresult<<strMsg;
+             qDebug()<<QDateTime::currentDateTime()<<"MOV_ABSPP::"<<iresult<<strMsg;
             break;
         }
         QThread::msleep(5);
@@ -241,7 +241,7 @@ void G00_Pulgin::SetAxisModel()
     {
         if(isTerminate)
         {
-            qDebug()<<QDateTime::currentDateTime()<<"SetAxisModel G00: isTerminate";
+            qDebug()<<QDateTime::currentDateTime()<<"SetAxisModel MOV_ABSPP: isTerminate";
             break;
         }
         if(1 == BaseCalcFun::GetByteValue("I8",1,m_InBeginBytePos+4))//记住修改点模式检测的map
@@ -370,13 +370,13 @@ int G00_Pulgin::GetInputData(int &curPos)
     if(BaseAxisOperate::CheckAxisFault(3,2,m_InBeginBytePos+2))
     {
         iResult = -1;
-        qDebug()<<"指令故障:"<<iResult;
+        qDebug()<<"MOV_ABSPP指令故障:"<<iResult;
         return iResult;
     }
     if(BaseAxisOperate::CheckAxisINP(10,2,m_InBeginBytePos+2))
     {
         iResult = 1;
-          qDebug()<<"G00到位信号:"<<iResult;
+          qDebug()<<"MOV_ABSPP到位信号:"<<iResult;
        return iResult;
     }
     curPos = BaseAxisOperate::GetAxisCurPos("I32",4,m_InBeginBytePos+5);

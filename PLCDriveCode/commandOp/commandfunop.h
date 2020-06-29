@@ -43,7 +43,7 @@ private slots:
 private:
     void GetAllAxisID();
     void SetPluginsMap();
-    void CmdThreadRun(QString str,cmdstru stru,uint8_t id);
+    void CmdThreadRun(QString str,cmdstru stru,uint8_t id,uint8_t cmd);
     void StopRunningCmd(int id);
 private:
     int m_exetaskid;
