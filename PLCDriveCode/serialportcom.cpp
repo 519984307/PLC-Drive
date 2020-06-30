@@ -22,7 +22,7 @@ bool SerialPortCom::PLCserialInit()
 {
     m_devicenum = 0;
     //设置串口名
-    m_plcserialob.setPortName("myplctest");
+    m_plcserialob.setPortName("/dev/ttyUSB0");
     if(m_plcserialob.isOpen())
     {
         m_plcserialob.close();
@@ -32,7 +32,7 @@ bool SerialPortCom::PLCserialInit()
     {
         qDebug()<<"与plc硬件串口打开成功"<<endl;
         //设置波特率 9600
-        m_plcserialob.setBaudRate(QSerialPort::Baud9600);
+        m_plcserialob.setBaudRate(QSerialPort::Baud115200);
         //设置数据位 8
         m_plcserialob.setDataBits(QSerialPort::Data8);
         //设置奇偶校验 无
@@ -67,6 +67,12 @@ void SerialPortCom::RevSerialDataFromPLC()
 {
     QByteArray arry;
     arry = m_plcserialob .readAll();
+    //    for(int i = 0; i < arry.size(); ++i)
+    //    {
+
+    //        qDebug("%02x",arry[i]);
+    //    }
+    qDebug()<<"revdata:"<<arry.toHex();
     for(int i = 0; i < arry.length(); ++i )
     {
         switch(m_count)
@@ -97,7 +103,7 @@ void SerialPortCom::RevSerialDataFromPLC()
                 if( arry.at(i)==(char)(0x5A))
                 {
                     //数据正确接受
-                    qDebug()<<" 数组接受格式："<<m_RevData;
+                    //   qDebug()<<" 数组接受格式："<<m_RevData;
                     Dataprocessingfun(m_RevData,m_datalen);
                 }
                 m_count=0;
@@ -114,6 +120,8 @@ void SerialPortCom::RevSerialDataFromPLC()
                     {
                         //数据正确接受
                         Dataprocessingfun(m_RevData,m_datalen);
+
+                        qDebug()<<" data:"<<m_RevData;
                     }
                     m_count=0;
                 }
@@ -183,6 +191,21 @@ void SerialPortCom::Dataprocessingfun(uint8_t *data, uint8_t len)
             scmdstru.setparamstru.speed =  param.x;
             break;
         }
+        case cmdname::RUNSTATE:
+        {
+            scmdstru.runstatestru.dataheader =  m_boardData.dataheader;
+            break;
+        }
+        case cmdname::GETABS:
+        {
+            scmdstru.getposstru.dataheader =  m_boardData.dataheader;
+            break;
+        }
+        case cmdname::GETERRORCODE:
+        {
+            scmdstru.errorcodestru.dataheader =  m_boardData.dataheader;
+            break;
+        }
         default:
             break;
         }
@@ -244,6 +267,26 @@ void SerialPortCom::SendStruDataToPLC(uint8_t funcmd, cmdstru stru)
         datalen = stru.getposstru.dataheader.bdatalen;
         funcmd = stru.getposstru.dataheader.bcmd;
         break;
+    case cmdname::RUNSTATE:
+    {
+        id = stru.runstatestru.dataheader.badrID;
+        type = stru.runstatestru.dataheader.bType;
+        datalen = stru.runstatestru.dataheader.bdatalen;
+        funcmd = stru.runstatestru.dataheader.bcmd;
+        data[0] = stru.runstatestru.state;
+        break;
+    }
+    case cmdname::GETERRORCODE:
+    {
+        atoi16 value;
+        value.x = stru.errorcodestru.errcode;
+           memcpy(data,value.a,2);
+        id = stru.errorcodestru.dataheader.badrID;
+        type = stru.errorcodestru.dataheader.bType;
+        datalen = stru.errorcodestru.dataheader.bdatalen;
+        funcmd = stru.errorcodestru.dataheader.bcmd;
+        break;
+    }
     case cmdname::GETENCODER:
         break;
     default:

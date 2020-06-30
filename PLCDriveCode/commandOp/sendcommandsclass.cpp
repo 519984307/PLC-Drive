@@ -185,7 +185,7 @@ void SendCommandsClass::SetAxisParam(QVector<uint> values,int id)
     tempBytePosNum.append(pair);
 
     BaseCalcFun::MemCopyOutputData(tempOutputData,tempBytePosNum);
-    //QThread::msleep(10);
+    QThread::msleep(10);
 }
 ///
 /// \brief SendCommandsClass::SetAxisReset

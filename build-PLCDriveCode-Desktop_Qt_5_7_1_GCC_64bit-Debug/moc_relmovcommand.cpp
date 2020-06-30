@@ -6,7 +6,7 @@
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
 
-#include "../PLCDriveCode/CommandFun/G00_Pulgin/relmovcommand.h"
+#include "../PLCDriveCode/CommandFun/RelMov/relmovcommand.h"
 #include <QtCore/qbytearray.h>
 #include <QtCore/qmetatype.h>
 #if !defined(Q_MOC_OUTPUT_REVISION)

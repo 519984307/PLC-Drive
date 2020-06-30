@@ -4,7 +4,7 @@
   <netName>enp2s0</netName> 
   <INPUT> 
     <类型 type="ec"> 
-      <property addr="0" size="9"  haType="1"/>  
+      <property addr="1" size="9"  haType="1"/>  
       <!--property addr="1" size="9"   haType="1"/-->  
       <!--property addr="2" size="2"   haType="1"/>  
     <property addr="3" size="2"   haType="1"/> 
@@ -18,7 +18,7 @@
   </INPUT>  
   <OUTPUT>
     <类型 type="ec"> 
-      <property addr="0" size="19"  haType="1"/>  
+      <property addr="1" size="19"  haType="1"/>  
       <!--property addr="1" size="19"  haType="1"/-->  
     </类型>  
     <类型 type="can"> 

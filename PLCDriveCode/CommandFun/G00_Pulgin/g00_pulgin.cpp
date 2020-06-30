@@ -75,7 +75,7 @@ int  G00_Pulgin::GetExcResult(QString &strMsg)
     if(!m_InitOk)
     {
         iresult = -2;
-        strMsg = "G00 初始化參數設置錯誤";
+        strMsg = "MOV_ABSPP 初始化參數設置錯誤";
         qDebug()<<QDateTime::currentDateTime()<<"MOV_ABSPP:"<<iresult<<strMsg;
         return iresult;
     }
@@ -296,9 +296,9 @@ bool G00_Pulgin::SetAxisInit()
     QVector<int> tempVec;
     tempVec.append(m_OutBeginBytePos);
     BaseAxisOperate::SetAxisExciteOff(m_tempOFFSON,tempVec,tempOutputData);
-    QThread::msleep(10);//延时时间原来50ms
+    QThread::msleep(50);//延时时间原来50ms
     BaseAxisOperate::SetAxisExcite(m_tempOutOP,tempVec,tempOutputData);
-    QThread::msleep(10);//延时时原来50ms
+    QThread::msleep(50);//延时时原来50ms
     if(CheckAxisInit())
     {
         return true;

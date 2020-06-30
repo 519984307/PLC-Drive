@@ -71,6 +71,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    m_timer->stop();
+     CoreLog::QLoggerManager::getInstance()->closeLogger();
     delete ui;
 }
 ///

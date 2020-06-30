@@ -15,18 +15,37 @@ CommandFunOp::CommandFunOp()
 /// 关闭文件的时候调用所有的数据进行关闭
 CommandFunOp::~CommandFunOp()
 {
-    if(InOutPutData::GetInstance()->outPutNum > 0)
+    //停止掉所有的流程，线程退出
+    for(auto it = m_pThreadObjMap.begin(); it != m_pThreadObjMap.end();++it)
     {
-        QMutexLocker locker(&InOutPutData::GetInstance()->m_outLock);
-        memset(InOutPutData::GetInstance()->outPutData,0,InOutPutData::GetInstance()->outPutNum);
+        if( it.value().first->isRunning())
+        {
+            auto item = m_pfunMap[it.key()].begin();
+            for(;item!=m_pfunMap[it.key()].end();++item)
+            {
+                if(  item.value())
+                {
+                    item.value()->isTerminate = true;
+                }
+            }
+            it.value().first->quit();
+            it.value().first->wait();
+        }
     }
-    m_ec.Stop();
     if(m_MonTimer)
     {
         m_MonTimer->stop();
         delete m_MonTimer;
     }
-    CoreLog::QLoggerManager::getInstance()->closeLogger();
+    if(InOutPutData::GetInstance()->outPutNum > 0)
+    {
+        QMutexLocker locker(&InOutPutData::GetInstance()->m_outLock);
+        memset(InOutPutData::GetInstance()->outPutData,0,InOutPutData::GetInstance()->outPutNum);
+    }
+    QThread::msleep(50);
+    m_ec.Stop();
+    QThread::msleep(300);
+    //CoreLog::QLoggerManager::getInstance()->closeLogger();
 }
 ///
 /// \brief CommandFunOp::InitAllParam
@@ -44,8 +63,12 @@ bool CommandFunOp::InitAllParam()
         qDebug()<<"serial open fail...";
         CoreLog::QLog_Error("Test","初始化串口打开失败...请检查串口");
         QString error = "初始化串口打开失败...请检查串口";
+
         emit signalShowInfo(error);
-        //return false;
+        return false;
+    }
+    else{
+        connect(&m_pserialportob,&SerialPortCom::SignalsendDataToCmd,this,&CommandFunOp::slotRecPlcCmdData);
     }
     //启动相关的配置文件 启动EC
     AnalysisDataLib obj;
@@ -53,10 +76,12 @@ bool CommandFunOp::InitAllParam()
     obj.ReadHWConfigFile(path);
     obj.CalcECbytePosandNum(MyShareconfig::GetInstance()->hwconfigstru);
     GetAllAxisID();
+
     obj.SetS_ONParam();
-    obj.LoadPluginsmodule();
     if(obj.MallocECbyteSize())
     {
+        obj.LoadPluginsmodule();
+        SetPluginsMap();
         if(m_othercmd.Initallaxisparam())
         {
             m_ec.Start();
@@ -89,24 +114,50 @@ void CommandFunOp::slotRecPlcCmdData(uint8_t funcmd,cmdstru stru)
     uint8_t id = -1;
     switch (funcmd) {
     case cmdname::None:
+    {
         break;
+    }
+    case cmdname::MOV_SPEED:
+    {
+        cmd = "MOV_SPEED";
+        CmdThreadRun(cmd,stru,id,funcmd);
+        break;
+    }
     case cmdname::MOV_ORG:
+    {
         cmd = "MOV_ORG";
+        CmdThreadRun(cmd,stru,id,funcmd);
         break;
+    }
     case cmdname::MOV_ABSPP:
     {
         //存储所有的指令
         id = stru.ppstru.dataheader.badrID;
         cmd = "MOV_ABSPP";
+        CmdThreadRun(cmd,stru,id,funcmd);
         break;
     }
     case cmdname::MOV_RELPP:
     {
         id = stru.ppstru.dataheader.badrID;
         cmd = "MOV_RELPP";
+        CmdThreadRun(cmd,stru,id,funcmd);
         break;
     }
-    case cmdname::MOV_SPEED:
+    case cmdname::SETACCDEC:// 主线程
+    {
+        id = stru.setparamstru.dataheader.badrID;
+        cmd = "SETACCDEC";
+        m_exetaskid++;
+        QVector<uint> values;
+        stru.setparamstru.acc;
+        values.append(stru.setparamstru.acc);
+        values.append(stru.setparamstru.dec);
+        values.append(stru.setparamstru.speed);
+        m_othercmd.SetAxisParam(values,id);
+        break;
+    }
+    case cmdname::SETSOFTLINMITPOS:
         break;
     case cmdname::STOPDEC:
     {
@@ -126,8 +177,21 @@ void CommandFunOp::slotRecPlcCmdData(uint8_t funcmd,cmdstru stru)
         StopRunningCmd(id);//改变在运行状态的轴
         break;
     }
-    case cmdname::UNDEFINE:
+    case cmdname::RUNSTATE://运行状态
+    {
+        m_exetaskid++;
+        QVector<int> id;
+        id.append(stru.runstatestru.dataheader.badrID);
+        QVector<int> values = m_othercmd.GetCurValuefun(id,4);
+        if(values.size() == 1)
+        {
+            cmdstru sendstru;
+            sendstru.runstatestru.dataheader = stru.runstatestru.dataheader;
+            sendstru.runstatestru.state = values[0];
+            m_pserialportob.SendStruDataToPLC(RUNSTATE,sendstru);
+        }
         break;
+    }
     case cmdname::GETABS: // 主线程
     {
         m_exetaskid++;
@@ -143,34 +207,30 @@ void CommandFunOp::slotRecPlcCmdData(uint8_t funcmd,cmdstru stru)
         }
         break;
     }
+    case cmdname::GETERRORCODE:
+    {
+        m_exetaskid++;
+        QVector<int> id;
+        id.append(stru.errorcodestru.dataheader.badrID);
+        QVector<int> values = m_othercmd.GetCurValuefun(id,2);
+        if(values.size() == 1)
+        {
+            cmdstru sendstru;
+            sendstru.errorcodestru.dataheader = stru.errorcodestru.dataheader;
+            sendstru.errorcodestru.errcode = values[0];
+            m_pserialportob.SendStruDataToPLC(GETERRORCODE,sendstru);
+        }
+        break;
+    }
     case cmdname::GETENCODER://不需要用线程
         cmd = "GETENCODER";
         m_exetaskid++;
         break;
-    case cmdname::SETACCDEC:// 主线程
-    {
-        id = stru.setparamstru.dataheader.badrID;
-        cmd = "SETACCDEC";
-        m_exetaskid++;
-        QVector<uint> values;
-        stru.setparamstru.acc;
-        values.append(stru.setparamstru.acc);
-        values.append(stru.setparamstru.dec);
-        values.append(stru.setparamstru.speed);
-        m_othercmd.SetAxisParam(values,id);
-        break;
-    }
-    case cmdname::SETSOFTLINMITPOS:
-        break;
     default:
         break;
     }
-    if((cmd =="MOV_ABSPP") || (cmd =="MOV_RELPP")|| (cmd == "MOV_ORG") || (cmd == "MOV_SPEED"))
-    {
-        CmdThreadRun(cmd,stru,id,funcmd);
-    }
     QString taskinfo =   m_tasklog.RecoderTaskCmd(m_exetaskid,funcmd,stru);
-    taskinfo= taskinfo +" ;接受到的索引号："+m_rectaskid;
+    taskinfo= taskinfo +" ;接受到的索引号："+QString::number(m_rectaskid);
     emit signaltaskInfo(taskinfo);
 }
 ///
@@ -180,30 +240,30 @@ bool statflag = false;
 void CommandFunOp::slotMonitorTimer()
 {
     //ec 状态监视
-    if(!statflag)
-    {
-        if(!InOutPutData::GetInstance()->isRunning)
-        {
-            CoreLog::QLog_Error("Test","ECthercat主站停止了...");
-            statflag = true;
-            QString error = "ECthercat主站停止了...";
-            emit signalShowInfo(error);
-        }
-        else{
-            QVector<int> curposvec =  m_othercmd.GetCurValuefun(m_threadidvec,1);//绝对位置
-            QVector<int> errcode  = m_othercmd.GetCurValuefun(m_threadidvec,2);//故障代码
-            QVector<int> fault  = m_othercmd.GetCurValuefun(m_threadidvec,3);//故障
-            QVector<int> runstate = m_othercmd.GetCurValuefun(m_threadidvec,4);//运行状态
-            QVector<int> inp =  m_othercmd.GetCurValuefun(m_threadidvec,5);//到位信号检测
-            QVector<int> Excite = m_othercmd.GetCurValuefun(m_threadidvec,6);//son状态检测
-            m_monitorvalues.insert(1,curposvec);
-            m_monitorvalues.insert(2,errcode);
-            m_monitorvalues.insert(3,fault);
-            m_monitorvalues.insert(4,runstate);
-            m_monitorvalues.insert(5,inp);
-            m_monitorvalues.insert(6,Excite);
-        }
-    }
+    ////    if(!statflag)
+    //    {
+    //        if(!InOutPutData::GetInstance()->isRunning)
+    //        {
+    //         //   CoreLog::QLog_Error("Test","ECthercat主站停止了...");
+    //            statflag = true;
+    ////            QString error = "ECthercat主站停止了...";
+    //         //   emit signalShowInfo(error);
+    ////        }
+    //  else{
+    QVector<int> curposvec =  m_othercmd.GetCurValuefun(m_threadidvec,1);//绝对位置
+    QVector<int> errcode  = m_othercmd.GetCurValuefun(m_threadidvec,2);//故障代码
+    QVector<int> fault  = m_othercmd.GetCurValuefun(m_threadidvec,3);//故障
+    QVector<int> runstate = m_othercmd.GetCurValuefun(m_threadidvec,4);//运行状态
+    QVector<int> inp =  m_othercmd.GetCurValuefun(m_threadidvec,5);//到位信号检测
+    QVector<int> Excite = m_othercmd.GetCurValuefun(m_threadidvec,6);//son状态检测
+    m_monitorvalues.insert(1,curposvec);
+    m_monitorvalues.insert(2,errcode);
+    m_monitorvalues.insert(3,fault);
+    m_monitorvalues.insert(4,runstate);
+    m_monitorvalues.insert(5,inp);
+    m_monitorvalues.insert(6,Excite);
+    //  }
+    //  }
     //监视串口状态通迅
 }
 ///
@@ -312,7 +372,7 @@ void CommandFunOp::CmdThreadRun(QString str, cmdstru stru, uint8_t id,uint8_t cm
         {
             FunModuleInterface * cmdob = m_pfunMap[id][str];
             if(!m_pThreadObjMap.contains(id))
-            {
+            {//
                 QThread * pthread = new QThread();
                 ExeCommandsFun *exerunobj = new ExeCommandsFun();
                 QPair<QThread*,ExeCommandsFun*> objpair;
@@ -320,7 +380,9 @@ void CommandFunOp::CmdThreadRun(QString str, cmdstru stru, uint8_t id,uint8_t cm
                 objpair.second = exerunobj;
                 m_pThreadObjMap.insert(id,objpair);
                 exerunobj->moveToThread(pthread);
-                connect(pthread,&QThread::started,exerunobj,&ExeCommandsFun::SlotCommandRun,Qt::QueuedConnection);
+                qRegisterMetaType<uint8_t>("uint8_t");
+                qRegisterMetaType<cmdstru>("cmdstru");
+                connect(pthread,&QThread::started,exerunobj,&ExeCommandsFun::SlotCommandRun);
                 connect(exerunobj,&ExeCommandsFun::signalComandsEnd,this,&CommandFunOp::slotRunEnd,Qt::QueuedConnection);
                 m_exetaskid++;
                 exerunobj->SetCommandsParam(cmd,stru,cmdob,m_exetaskid);

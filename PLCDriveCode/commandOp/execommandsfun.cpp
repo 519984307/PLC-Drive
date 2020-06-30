@@ -5,6 +5,7 @@ ExeCommandsFun::ExeCommandsFun()
     m_funcmd = NULL;
     m_taskid = -1;
       qRegisterMetaType<cmdstru>("cmdstru");
+       qRegisterMetaType<uint8_t>("uint8_t");
 }
 ///
 /// \brief ExeCommandsFun::SetCommandsParam

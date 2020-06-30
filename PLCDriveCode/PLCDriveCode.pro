@@ -37,8 +37,9 @@ SOURCES += \
     commandOp/execommandsfun.cpp \
     commandOp/sendcommandsclass.cpp \
     commandOp/taskmangerclass.cpp \
-    CommandFun/G00_Pulgin/setaccdecspeedcmd.cpp \
-    CommandFun/G00_Pulgin/relmovcommand.cpp
+    CommandFun/RelMov/relmovcommand.cpp \
+    CommandFun/SetADS/setaccdecspeedcmd.cpp
+
 
 
 HEADERS += \
@@ -55,8 +56,8 @@ HEADERS += \
     commandOp/execommandsfun.h \
     commandOp/sendcommandsclass.h \
     commandOp/taskmangerclass.h \
-    CommandFun/G00_Pulgin/setaccdecspeedcmd.h \
-    CommandFun/G00_Pulgin/relmovcommand.h
+    CommandFun/RelMov/relmovcommand.h \
+    CommandFun/SetADS/setaccdecspeedcmd.h
 
 
 FORMS += \

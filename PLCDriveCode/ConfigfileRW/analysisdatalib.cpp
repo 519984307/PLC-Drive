@@ -6,6 +6,8 @@
 #include "ConfigfileRW/readhwconfigfile.h"
 #include <MyEC_Shared.h>
 #include "CommandFun/G00_Pulgin/g00_pulgin.h"
+#include "CommandFun/RelMov/relmovcommand.h"
+#include "CommandFun/SetADS/setaccdecspeedcmd.h"
 
 AnalysisDataLib::AnalysisDataLib()
 {
@@ -29,10 +31,22 @@ void AnalysisDataLib::LoadPluginsmodule()
 //        }
 //    }
     G00_Pulgin * base_moudle = new G00_Pulgin();
-    qDebug() << base_moudle->GetModuleName();
+    qDebug() <<"LoadPluginsmodule"<< base_moudle->GetModuleName();
     if(base_moudle)
     {
-       MyShareconfig::GetInstance()->pluginMap.insert(base_moudle->GetModuleName(),base_moudle);
+        MyShareconfig::GetInstance()->pluginMap.insert(base_moudle->GetModuleName(),base_moudle);
+    }
+    SetAccDecSpeedcmd *ads = new SetAccDecSpeedcmd();
+    qDebug() <<"LoadPluginsmodule"<< ads->GetModuleName();
+    if(ads)
+    {
+        MyShareconfig::GetInstance()->pluginMap.insert(ads->GetModuleName(),ads);
+    }
+    RelMovCommand *relmov= new RelMovCommand();
+    qDebug() <<"LoadPluginsmodule"<< relmov->GetModuleName();
+    if(relmov)
+    {
+        MyShareconfig::GetInstance()->pluginMap.insert(relmov->GetModuleName(),relmov);
     }
 }
 
