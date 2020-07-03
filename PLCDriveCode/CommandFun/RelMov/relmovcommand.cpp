@@ -166,7 +166,7 @@ void RelMovCommand::GetAxisBeginBytePos()
 void RelMovCommand::RelativeChange()
 {
     BaseCalcFun::SetBitValue(6,m_OutBeginBytePos,1);
-    QThread::msleep(20);
+    QThread::msleep(50);
 }
 
 void RelMovCommand::SetAxisParm()

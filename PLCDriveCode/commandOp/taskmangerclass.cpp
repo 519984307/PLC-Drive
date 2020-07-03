@@ -45,6 +45,12 @@ QString TaskMangerClass::RecoderTaskCmd(int index,uint8_t funcmd, cmdstru stru)
     QString name;
     QString info;
     switch (funcmd) {
+    case cmdname::MOV_ORG:
+        name = "MOV_ORG";
+        info = QString("设置轴id:%1回原点，method:%2,search swspeed:%3,search zerospeed:%4,ACC/DEC:%5;").\
+                arg(stru.orgstru.dataheader.badrID).arg(stru.orgstru.method).arg(stru.orgstru.searchswspeed).\
+                arg(stru.orgstru.searchzerospeed).arg(stru.orgstru.acc);
+        break;
     case cmdname::MOV_ABSPP:
     {
         name = "MOV_ABSPP";
@@ -76,13 +82,31 @@ QString TaskMangerClass::RecoderTaskCmd(int index,uint8_t funcmd, cmdstru stru)
         info = QString("获取轴id:%1的绝对位置,发送位置:pos%2;").arg(stru.getposstru.dataheader.badrID).arg(stru.getposstru.curpos);
         break;
     }
+    case cmdname::SETSON:
+    {
+        name = "SETSON";
+        info = QString("设置轴id ：%,励磁动作;").arg(stru.sonstru.dataheader.badrID);
+        break;
+    }
+    case cmdname::SETOFF:
+    {
+        name = "SETOFF";
+        info = QString("设置轴id ：%,松励磁动作;").arg(stru.soffstru.dataheader.badrID);
+        break;
+    }
+    case cmdname::SETRESET:
+    {
+        name = "SETRESET";
+        info = QString("设置轴id ：%,故障清除动作;").arg(stru.resetstru.dataheader.badrID);
+        break;
+    }
     default:
         break;
     }
-      QString msg;
+    QString msg;
     if(info != "")
     {
-       msg=  "["+QString::number(index) + "]" + " 执行指令:"+name+":"+info;
+        msg=  "["+QString::number(index) + "]" + " 执行指令:"+name+":"+info;
         CoreLog::QLog_Info("Test",msg);
     }
     return msg;

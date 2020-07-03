@@ -3,6 +3,9 @@
 SendCommandsClass::SendCommandsClass()
 {
     m_tempInOP.clear();
+    m_tempOutOP.clear();
+    m_tempOFFSON.clear();
+    m_tempOutputData = NULL;
 }
 
 SendCommandsClass::~SendCommandsClass()
@@ -13,13 +16,39 @@ SendCommandsClass::~SendCommandsClass()
 bool SendCommandsClass::Initallaxisparam()
 {
     //检查励磁
+//    foreach (BIT_VALUE_STRU item, MyShareconfig::GetInstance()->hwconfigstru.hwconfigSonstru.InPutVec) {
+//        QPair<int,int> pair = QPair<int,int>(item.bit,item.value);
+//        m_tempInOP.append(pair);
+//    }
+//    if(m_tempInOP.size() <=0)
+//        return false;
+//    return true;
+    m_tempInOP.clear();
+    m_tempOutOP.clear();
+    m_tempOFFSON.clear();
+    m_tempOutputData = new uchar[InOutPutData::GetInstance()->outPutNum];
+    //获取检查励磁是否成功的参数（bit，vaule）
     foreach (BIT_VALUE_STRU item, MyShareconfig::GetInstance()->hwconfigstru.hwconfigSonstru.InPutVec) {
         QPair<int,int> pair = QPair<int,int>(item.bit,item.value);
         m_tempInOP.append(pair);
     }
-    if(m_tempInOP.size() <=0)
+    if(m_tempInOP.size() <= 0)
         return false;
-    return true;
+    //获取励磁的参数（bit，vaule）
+    foreach (BIT_VALUE_STRU item, MyShareconfig::GetInstance()->hwconfigstru.hwconfigSonstru.OutPutVec) {
+        QPair<int,int> pair = QPair<int,int>(item.bit,item.value);
+        m_tempOutOP.append(pair);
+        int offValue = 0;
+        if(item.value == 0)
+        {
+            offValue = 1;
+        }
+        QPair<int,int> pairoff = QPair<int,int>(item.bit,offValue);
+        m_tempOFFSON.append(pairoff);
+    }
+    if(m_tempOutOP.size() <= 0)
+        return  false;
+  return true;
 }
 ///
 /// \brief SendCommandsClass::StopComandsfun
@@ -96,7 +125,7 @@ QVector<int> SendCommandsClass::GetCurValuefun(QVector<int> axisidvec,int role)
             values.append(value);
             break;
         case Runstate:   //轴是否在停止状态
-            if(MyShareconfig::GetInstance()->m_Runstate[i] /*&&(!BaseCalcFun::GetB.`itValue(5,2,axiscurpos+2))*/)
+            if(MyShareconfig::GetInstance()->m_Runstate[axisid] /*&&(!BaseCalcFun::GetBitValue(5,2,axiscurpos+2))*/)
             {
                 value = 1;
             }
@@ -193,7 +222,6 @@ void SendCommandsClass::SetAxisParam(QVector<uint> values,int id)
 ///  轴复位指令
 void SendCommandsClass::SetAxisReset(int id)
 {
-   QMutexLocker locker(&MyShareconfig::GetInstance()->m_mutex);
     int axiscurpos= -1;
     int OutBeginBytePos = -1;
     GetAxisBeginBytePos(id,axiscurpos,OutBeginBytePos);
@@ -218,12 +246,12 @@ void SendCommandsClass::SetAxisSon(int id)
     {
         return;
     }
-//    QMutexLocker locker(&MyShareconfig::GetInstance()->m_mutex);
-//    if(!BaseAxisOperate::CheckAxisExcited(m_tempInOP,2,axiscurpos+2))
-//        return ;
-//    BaseAxisOperate::SetAxisExcite(m_tempOutOP,tempVec,tempOutputData);
-//    QThread::msleep(10);//延时时原来50ms
-
+    QVector<int> tempVec;
+    tempVec.append(OutBeginBytePos);
+    if(!BaseAxisOperate::CheckAxisExcited(m_tempInOP,2,axiscurpos+2))
+        return ;
+    BaseAxisOperate::SetAxisExcite(m_tempOutOP,tempVec,m_tempOutputData);
+    QThread::msleep(50);//延时时原来50ms
 }
 ///
 /// \brief SendCommandsClass::SetAxisSoff
@@ -240,9 +268,32 @@ void SendCommandsClass::SetAxisSoff(int id)
           return;
       }
       tempVec.append(OutBeginBytePos);
-//       QMutexLocker locker(&MyShareconfig::GetInstance()->m_mutex);
-//      BaseAxisOperate::SetAxisExciteOff(m_tempOFFSON,tempVec,tempOutputData);
-//      QThread::msleep(10);//延时时间原来50ms
+      BaseAxisOperate::SetAxisExciteOff(m_tempOFFSON,tempVec,m_tempOutputData);
+      QThread::msleep(50);//延时时间原来50ms
+}
+
+void SendCommandsClass::GetSonparam()
+{
+    m_tempInOP.clear();
+    m_tempOutOP.clear();
+    m_tempOFFSON.clear();
+    //获取检查励磁是否成功的参数（bit，vaule）
+    foreach (BIT_VALUE_STRU item, MyShareconfig::GetInstance()->hwconfigstru.hwconfigSonstru.InPutVec) {
+        QPair<int,int> pair = QPair<int,int>(item.bit,item.value);
+        m_tempInOP.append(pair);
+    }
+    //获取励磁的参数（bit，vaule）
+    foreach (BIT_VALUE_STRU item, MyShareconfig::GetInstance()->hwconfigstru.hwconfigSonstru.OutPutVec) {
+        QPair<int,int> pair = QPair<int,int>(item.bit,item.value);
+        m_tempOutOP.append(pair);
+        int offValue = 0;
+        if(item.value == 0)
+        {
+            offValue = 1;
+        }
+        QPair<int,int> pairoff = QPair<int,int>(item.bit,offValue);
+        m_tempOFFSON.append(pairoff);
+    }
 }
 
 

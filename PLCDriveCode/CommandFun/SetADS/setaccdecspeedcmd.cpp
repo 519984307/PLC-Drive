@@ -94,7 +94,7 @@ void SetAccDecSpeedcmd::SetCommandsParam()
     tempBytePosNum.append(pair);
 
     BaseCalcFun::MemCopyOutputData(tempOutputData,tempBytePosNum);
-    QThread::msleep(10);
+    QThread::msleep(50);
 }
 
 void SetAccDecSpeedcmd::GetAxisBeginBytePos()

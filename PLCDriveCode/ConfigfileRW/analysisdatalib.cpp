@@ -8,6 +8,9 @@
 #include "CommandFun/G00_Pulgin/g00_pulgin.h"
 #include "CommandFun/RelMov/relmovcommand.h"
 #include "CommandFun/SetADS/setaccdecspeedcmd.h"
+#include "CommandFun/Reset/reset.h"
+#include "CommandFun/SOFF/soff.h"
+#include "CommandFun/SON/son.h"
 
 AnalysisDataLib::AnalysisDataLib()
 {
@@ -15,21 +18,21 @@ AnalysisDataLib::AnalysisDataLib()
 
 void AnalysisDataLib::LoadPluginsmodule()
 {
-   // QDir plugindir = QDir(QCoreApplication::applicationDirPath()+"/plugins");
+    // QDir plugindir = QDir(QCoreApplication::applicationDirPath()+"/plugins");
     MyShareconfig::GetInstance()->pluginMap.clear();
-//    foreach(QString filename,plugindir.entryList(QDir::Files))
-//    {
-//        QPluginLoader loader(plugindir.absoluteFilePath(filename));
+    //    foreach(QString filename,plugindir.entryList(QDir::Files))
+    //    {
+    //        QPluginLoader loader(plugindir.absoluteFilePath(filename));
 
- //       if (FunModuleInterface * base_moudle = qobject_cast<FunModuleInterface *>(loader.instance()))
-//        {
- //          if(base_moudle)
-//           {
-//               qDebug() << base_moudle->GetModuleName();
-//             ClassicladderConfigData::GetInstance()->pluginMap.insert(base_moudle->GetModuleName(),base_moudle);
-//            }
-//        }
-//    }
+    //       if (FunModuleInterface * base_moudle = qobject_cast<FunModuleInterface *>(loader.instance()))
+    //        {
+    //          if(base_moudle)
+    //           {
+    //               qDebug() << base_moudle->GetModuleName();
+    //             ClassicladderConfigData::GetInstance()->pluginMap.insert(base_moudle->GetModuleName(),base_moudle);
+    //            }
+    //        }
+    //    }
     G00_Pulgin * base_moudle = new G00_Pulgin();
     qDebug() <<"LoadPluginsmodule"<< base_moudle->GetModuleName();
     if(base_moudle)
@@ -47,6 +50,24 @@ void AnalysisDataLib::LoadPluginsmodule()
     if(relmov)
     {
         MyShareconfig::GetInstance()->pluginMap.insert(relmov->GetModuleName(),relmov);
+    }
+    Reset *resetcmd = new Reset();
+    qDebug() <<"LoadPluginsmodule"<< resetcmd->GetModuleName();
+    if(resetcmd)
+    {
+        MyShareconfig::GetInstance()->pluginMap.insert(resetcmd->GetModuleName(),resetcmd);
+    }
+    SOFF * soffcmd = new SOFF();
+    qDebug() <<"LoadPluginsmodule"<< soffcmd->GetModuleName();
+    if(soffcmd)
+    {
+        MyShareconfig::GetInstance()->pluginMap.insert(soffcmd->GetModuleName(),soffcmd);
+    }
+    SON *soncmd = new SON();
+    qDebug() <<"LoadPluginsmodule"<< soncmd->GetModuleName();
+    if(soncmd)
+    {
+        MyShareconfig::GetInstance()->pluginMap.insert(soncmd->GetModuleName(),soncmd);
     }
 }
 
@@ -153,7 +174,7 @@ bool AnalysisDataLib::MallocECbyteSize()
         }
         if( InOutPutData::GetInstance()->outPutData)
         {
-             InOutPutData::GetInstance()->inPutData = NULL;
+            InOutPutData::GetInstance()->inPutData = NULL;
         }
         InOutPutData::GetInstance()->ifName = NULL;
         InOutPutData::GetInstance()->inPutData = new uchar[InOutPutData::GetInstance()->inPutNum] ;
@@ -162,23 +183,22 @@ bool AnalysisDataLib::MallocECbyteSize()
         memset(InOutPutData::GetInstance()->outPutData, 0, sizeof(uchar) * InOutPutData::GetInstance()->outPutNum);
 
         QByteArray array = MyShareconfig::GetInstance()->hwconfigstru.netName.toLatin1();
-            int size = strlen (array.data());
+        int size = strlen (array.data());
         if(size == 0)
         {
-
             return false;
         }
-       // InOutPutData::GetInstance()->ifName = array.data();
+        // InOutPutData::GetInstance()->ifName = array.data();
         InOutPutData::GetInstance()->ifName = new char[size+1];
         memcpy(InOutPutData::GetInstance()->ifName, array.data(),size+1);
-        for(int i = 0; i < size; ++i)
-        {
-            qDebug()<<"i:"<<i << "value:"<<InOutPutData::GetInstance()->ifName[i];
-        }
+//        for(int i = 0; i < size; ++i)
+//        {
+//            qDebug()<<"i:"<<i << "value:"<<InOutPutData::GetInstance()->ifName[i];
+//        }
         return true;
-     qDebug()<<"ifname:"<<QString(InOutPutData::GetInstance()->ifName);
+        qDebug()<<"ifname:"<<QString(InOutPutData::GetInstance()->ifName);
     }
     else{
-     return false;
+        return false;
     }
 }

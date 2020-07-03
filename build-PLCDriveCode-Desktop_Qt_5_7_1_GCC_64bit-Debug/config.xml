@@ -18,7 +18,7 @@
   </INPUT>  
   <OUTPUT>
     <类型 type="ec"> 
-      <property addr="1" size="19"  haType="1"/>  
+      <property addr="1" size="20"  haType="1"/>  
       <!--property addr="1" size="19"  haType="1"/-->  
     </类型>  
     <类型 type="can"> 

@@ -23,6 +23,6 @@ public:
     HWCONFIG_STRU hwconfigstru;
     QMap<QString,FunModuleInterface*> pluginMap;
     QMutex m_mutex;
-    char m_Runstate[10] = {0};
+    char m_Runstate[16] = {0};
 };
 #endif // MYSHARECONFIG_H

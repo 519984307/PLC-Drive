@@ -40,15 +40,22 @@ public:
 private slots:
     void slotMonitorTimer();
     void slotRunEnd(uint8_t cmd,cmdstru stru,int taskid,QString msg);
+    void slotMonitorRunStateTimer();
 private:
     void GetAllAxisID();
     void SetPluginsMap();
     void CmdThreadRun(QString str,cmdstru stru,uint8_t id,uint8_t cmd);
     void StopRunningCmd(int id);
+    void SendRunstate(uint8_t id,char value);
+    int  Getcmdidandname(QString &cmdstr,uint8_t cmd,cmdstru stru);
+public:
+        void Stop();
 private:
     int m_exetaskid;
     int m_rectaskid;
     QVector<int> m_runingtaskid;
+    char m_change[10];
+    QTimer *m_pRunstatTimer;
 public://test
     QMap<int,QVector<int>> m_monitorvalues;
 signals:

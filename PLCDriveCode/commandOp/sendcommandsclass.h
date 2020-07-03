@@ -22,8 +22,12 @@ public:
     void SetAxisReset(int id);
     void SetAxisSon(int id);
     void SetAxisSoff(int id);
+    void  GetSonparam();
 private:
     QVector<QPair<int,int>> m_tempInOP;
+    QVector<QPair<int,int>> m_tempOutOP;
+   QVector<QPair<int,int>> m_tempOFFSON;
+    uchar *m_tempOutputData;
     enum mointorroles{
         none = 0,
         curpos = 1,

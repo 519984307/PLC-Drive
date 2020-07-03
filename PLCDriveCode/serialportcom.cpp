@@ -22,7 +22,9 @@ bool SerialPortCom::PLCserialInit()
 {
     m_devicenum = 0;
     //设置串口名
-    m_plcserialob.setPortName("/dev/ttyUSB0");
+    QString name = "/dev/ttyUSB1";
+    QString nametest = "/dev/ttyS1";
+    m_plcserialob.setPortName(name);
     if(m_plcserialob.isOpen())
     {
         m_plcserialob.close();
@@ -158,6 +160,24 @@ void SerialPortCom::Dataprocessingfun(uint8_t *data, uint8_t len)
         switch (cmd) {
         case cmdname::None:
             break;
+        case cmdname::MOV_ORG:
+        {
+            scmdstru.orgstru.dataheader= m_boardData.dataheader;
+            memcpy(m_boardData.data,&tempdata[alen+2],lenvalue);
+            //模式
+            scmdstru.orgstru.method = tempdata[alen+2];
+            atou32  param;
+            //search sw
+            memcpy(param.a,&tempdata[alen+2+1],4);
+            scmdstru.orgstru.searchswspeed = param.x;
+            //search zero
+            memcpy(param.a,&tempdata[alen+2+1+4],4);
+            scmdstru.orgstru.searchzerospeed = param.x;
+            //ACC
+            memcpy(param.a,&tempdata[alen+2+1+4+4],4);
+            scmdstru.orgstru.acc = param.x;
+            break;
+        }
         case cmdname::MOV_RELPP:
         {
             scmdstru.ppstru.dataheader = m_boardData.dataheader;
@@ -206,6 +226,15 @@ void SerialPortCom::Dataprocessingfun(uint8_t *data, uint8_t len)
             scmdstru.errorcodestru.dataheader =  m_boardData.dataheader;
             break;
         }
+        case cmdname::SETSON:
+            scmdstru.sonstru.dataheader = m_boardData.dataheader;
+            break;
+          case cmdname::SETOFF:
+              scmdstru.soffstru.dataheader = m_boardData.dataheader;
+            break;
+        case cmdname::SETRESET:
+              scmdstru.resetstru.dataheader = m_boardData.dataheader;
+            break;
         default:
             break;
         }
@@ -280,7 +309,7 @@ void SerialPortCom::SendStruDataToPLC(uint8_t funcmd, cmdstru stru)
     {
         atoi16 value;
         value.x = stru.errorcodestru.errcode;
-           memcpy(data,value.a,2);
+        memcpy(data,value.a,2);
         id = stru.errorcodestru.dataheader.badrID;
         type = stru.errorcodestru.dataheader.bType;
         datalen = stru.errorcodestru.dataheader.bdatalen;

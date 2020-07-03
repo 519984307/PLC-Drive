@@ -7,6 +7,7 @@
 #include <QTextEdit>
 #include <QTimer>
 #include <QLineEdit>
+#include<QLabel>
 namespace Ui {
 class MainWindow;
 }
@@ -22,10 +23,14 @@ public:
     QTextEdit *m_ptaskmsg;
     QTimer *m_timer;
     QLineEdit *m_pshowerrorinfo;
+    QLabel *m_connectstat;
+
 private slots:
     void slotmintorinfo();
     void slotshowloginfo(QString msg);
     void slotRecordertaskinfo(QString msg);
+    void on_pushButton_clicked();
+
 private:
     Ui::MainWindow *ui;
 };

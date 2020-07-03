@@ -59,7 +59,11 @@ SOURCES       = ../PLCDriveCode/main.cpp \
 		../PLCDriveCode/commandOp/sendcommandsclass.cpp \
 		../PLCDriveCode/commandOp/taskmangerclass.cpp \
 		../PLCDriveCode/CommandFun/RelMov/relmovcommand.cpp \
-		../PLCDriveCode/CommandFun/SetADS/setaccdecspeedcmd.cpp moc_mainwindow.cpp \
+		../PLCDriveCode/CommandFun/SetADS/setaccdecspeedcmd.cpp \
+		../PLCDriveCode/CommandFun/SON/son.cpp \
+		../PLCDriveCode/CommandFun/SOFF/soff.cpp \
+		../PLCDriveCode/CommandFun/Reset/reset.cpp qrc_ico.cpp \
+		moc_mainwindow.cpp \
 		moc_serialportcom.cpp \
 		moc_commandfunop.cpp \
 		moc_g00_pulgin.cpp \
@@ -79,6 +83,10 @@ OBJECTS       = main.o \
 		taskmangerclass.o \
 		relmovcommand.o \
 		setaccdecspeedcmd.o \
+		son.o \
+		soff.o \
+		reset.o \
+		qrc_ico.o \
 		moc_mainwindow.o \
 		moc_serialportcom.o \
 		moc_commandfunop.o \
@@ -259,7 +267,10 @@ DIST          = /opt/Qt5.7.1/5.7/gcc_64/mkspecs/features/spec_pre.prf \
 		../PLCDriveCode/commandOp/sendcommandsclass.h \
 		../PLCDriveCode/commandOp/taskmangerclass.h \
 		../PLCDriveCode/CommandFun/RelMov/relmovcommand.h \
-		../PLCDriveCode/CommandFun/SetADS/setaccdecspeedcmd.h ../PLCDriveCode/main.cpp \
+		../PLCDriveCode/CommandFun/SetADS/setaccdecspeedcmd.h \
+		../PLCDriveCode/CommandFun/SON/son.h \
+		../PLCDriveCode/CommandFun/SOFF/soff.h \
+		../PLCDriveCode/CommandFun/Reset/reset.h ../PLCDriveCode/main.cpp \
 		../PLCDriveCode/mainwindow.cpp \
 		../PLCDriveCode/serialportcom.cpp \
 		../PLCDriveCode/commandOp/commandfunop.cpp \
@@ -270,7 +281,10 @@ DIST          = /opt/Qt5.7.1/5.7/gcc_64/mkspecs/features/spec_pre.prf \
 		../PLCDriveCode/commandOp/sendcommandsclass.cpp \
 		../PLCDriveCode/commandOp/taskmangerclass.cpp \
 		../PLCDriveCode/CommandFun/RelMov/relmovcommand.cpp \
-		../PLCDriveCode/CommandFun/SetADS/setaccdecspeedcmd.cpp
+		../PLCDriveCode/CommandFun/SetADS/setaccdecspeedcmd.cpp \
+		../PLCDriveCode/CommandFun/SON/son.cpp \
+		../PLCDriveCode/CommandFun/SOFF/soff.cpp \
+		../PLCDriveCode/CommandFun/Reset/reset.cpp
 QMAKE_TARGET  = PLCDriveCode
 DESTDIR       = 
 TARGET        = PLCDriveCode
@@ -441,6 +455,7 @@ Makefile: ../PLCDriveCode/PLCDriveCode.pro /opt/Qt5.7.1/5.7/gcc_64/mkspecs/linux
 		/opt/Qt5.7.1/5.7/gcc_64/mkspecs/features/yacc.prf \
 		/opt/Qt5.7.1/5.7/gcc_64/mkspecs/features/lex.prf \
 		../PLCDriveCode/PLCDriveCode.pro \
+		../PLCDriveCode/ico.qrc \
 		/opt/Qt5.7.1/5.7/gcc_64/lib/libQt5Widgets.prl \
 		/opt/Qt5.7.1/5.7/gcc_64/lib/libQt5Gui.prl \
 		/opt/Qt5.7.1/5.7/gcc_64/lib/libQt5SerialPort.prl \
@@ -605,6 +620,7 @@ Makefile: ../PLCDriveCode/PLCDriveCode.pro /opt/Qt5.7.1/5.7/gcc_64/mkspecs/linux
 /opt/Qt5.7.1/5.7/gcc_64/mkspecs/features/yacc.prf:
 /opt/Qt5.7.1/5.7/gcc_64/mkspecs/features/lex.prf:
 ../PLCDriveCode/PLCDriveCode.pro:
+../PLCDriveCode/ico.qrc:
 /opt/Qt5.7.1/5.7/gcc_64/lib/libQt5Widgets.prl:
 /opt/Qt5.7.1/5.7/gcc_64/lib/libQt5Gui.prl:
 /opt/Qt5.7.1/5.7/gcc_64/lib/libQt5SerialPort.prl:
@@ -623,8 +639,9 @@ dist: distdir FORCE
 distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
-	$(COPY_FILE) --parents ../PLCDriveCode/mainwindow.h ../PLCDriveCode/serialdataframe.h ../PLCDriveCode/serialportcom.h ../PLCDriveCode/commandOp/commandfunop.h ../PLCDriveCode/ConfigfileRW/readhwconfigfile.h ../PLCDriveCode/ConfigfileRW/readhwconfigfile_global.h ../PLCDriveCode/ConfigfileRW/analysisdatalib.h ../PLCDriveCode/ConfigfileRW/analysisdatalib_global.h myshareconfig.h ../PLCDriveCode/CommandFun/G00_Pulgin/g00_pulgin.h ../PLCDriveCode/commandOp/execommandsfun.h ../PLCDriveCode/commandOp/sendcommandsclass.h ../PLCDriveCode/commandOp/taskmangerclass.h ../PLCDriveCode/CommandFun/RelMov/relmovcommand.h ../PLCDriveCode/CommandFun/SetADS/setaccdecspeedcmd.h $(DISTDIR)/
-	$(COPY_FILE) --parents ../PLCDriveCode/main.cpp ../PLCDriveCode/mainwindow.cpp ../PLCDriveCode/serialportcom.cpp ../PLCDriveCode/commandOp/commandfunop.cpp ../PLCDriveCode/ConfigfileRW/readhwconfigfile.cpp ../PLCDriveCode/ConfigfileRW/analysisdatalib.cpp ../PLCDriveCode/CommandFun/G00_Pulgin/g00_pulgin.cpp ../PLCDriveCode/commandOp/execommandsfun.cpp ../PLCDriveCode/commandOp/sendcommandsclass.cpp ../PLCDriveCode/commandOp/taskmangerclass.cpp ../PLCDriveCode/CommandFun/RelMov/relmovcommand.cpp ../PLCDriveCode/CommandFun/SetADS/setaccdecspeedcmd.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents ../PLCDriveCode/ico.qrc $(DISTDIR)/
+	$(COPY_FILE) --parents ../PLCDriveCode/mainwindow.h ../PLCDriveCode/serialdataframe.h ../PLCDriveCode/serialportcom.h ../PLCDriveCode/commandOp/commandfunop.h ../PLCDriveCode/ConfigfileRW/readhwconfigfile.h ../PLCDriveCode/ConfigfileRW/readhwconfigfile_global.h ../PLCDriveCode/ConfigfileRW/analysisdatalib.h ../PLCDriveCode/ConfigfileRW/analysisdatalib_global.h myshareconfig.h ../PLCDriveCode/CommandFun/G00_Pulgin/g00_pulgin.h ../PLCDriveCode/commandOp/execommandsfun.h ../PLCDriveCode/commandOp/sendcommandsclass.h ../PLCDriveCode/commandOp/taskmangerclass.h ../PLCDriveCode/CommandFun/RelMov/relmovcommand.h ../PLCDriveCode/CommandFun/SetADS/setaccdecspeedcmd.h ../PLCDriveCode/CommandFun/SON/son.h ../PLCDriveCode/CommandFun/SOFF/soff.h ../PLCDriveCode/CommandFun/Reset/reset.h $(DISTDIR)/
+	$(COPY_FILE) --parents ../PLCDriveCode/main.cpp ../PLCDriveCode/mainwindow.cpp ../PLCDriveCode/serialportcom.cpp ../PLCDriveCode/commandOp/commandfunop.cpp ../PLCDriveCode/ConfigfileRW/readhwconfigfile.cpp ../PLCDriveCode/ConfigfileRW/analysisdatalib.cpp ../PLCDriveCode/CommandFun/G00_Pulgin/g00_pulgin.cpp ../PLCDriveCode/commandOp/execommandsfun.cpp ../PLCDriveCode/commandOp/sendcommandsclass.cpp ../PLCDriveCode/commandOp/taskmangerclass.cpp ../PLCDriveCode/CommandFun/RelMov/relmovcommand.cpp ../PLCDriveCode/CommandFun/SetADS/setaccdecspeedcmd.cpp ../PLCDriveCode/CommandFun/SON/son.cpp ../PLCDriveCode/CommandFun/SOFF/soff.cpp ../PLCDriveCode/CommandFun/Reset/reset.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents ../PLCDriveCode/mainwindow.ui $(DISTDIR)/
 
 
@@ -649,8 +666,16 @@ check: first
 
 benchmark: first
 
-compiler_rcc_make_all:
+compiler_rcc_make_all: qrc_ico.cpp
 compiler_rcc_clean:
+	-$(DEL_FILE) qrc_ico.cpp
+qrc_ico.cpp: ../PLCDriveCode/ico.qrc \
+		/opt/Qt5.7.1/5.7/gcc_64/bin/rcc \
+		../PLCDriveCode/image/shutdown.png \
+		../PLCDriveCode/image/green.png \
+		../PLCDriveCode/image/red.png
+	/opt/Qt5.7.1/5.7/gcc_64/bin/rcc -name ico ../PLCDriveCode/ico.qrc -o qrc_ico.cpp
+
 compiler_moc_header_make_all: moc_mainwindow.cpp moc_serialportcom.cpp moc_commandfunop.cpp moc_g00_pulgin.cpp moc_execommandsfun.cpp moc_sendcommandsclass.cpp moc_taskmangerclass.cpp moc_relmovcommand.cpp
 compiler_moc_header_clean:
 	-$(DEL_FILE) moc_mainwindow.cpp moc_serialportcom.cpp moc_commandfunop.cpp moc_g00_pulgin.cpp moc_execommandsfun.cpp moc_sendcommandsclass.cpp moc_taskmangerclass.cpp moc_relmovcommand.cpp
@@ -826,6 +851,8 @@ moc_mainwindow.cpp: /opt/Qt5.7.1/5.7/gcc_64/include/QtWidgets/QMainWindow \
 		/opt/Qt5.7.1/5.7/gcc_64/include/QtGui/qpen.h \
 		/opt/Qt5.7.1/5.7/gcc_64/include/QtWidgets/QLineEdit \
 		/opt/Qt5.7.1/5.7/gcc_64/include/QtWidgets/qlineedit.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtWidgets/QLabel \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtWidgets/qlabel.h \
 		../PLCDriveCode/mainwindow.h \
 		/opt/Qt5.7.1/5.7/gcc_64/bin/moc
 	/opt/Qt5.7.1/5.7/gcc_64/bin/moc $(DEFINES) -I/opt/Qt5.7.1/5.7/gcc_64/mkspecs/linux-g++ -I/root/code/PLC-Drive/PLCDriveCode -I/root/code/PLC-Drive/PLCDriveCode -I/root/code/PLC-Drive/PLCDriveCode/SDK/include -I/opt/Qt5.7.1/5.7/gcc_64/include -I/opt/Qt5.7.1/5.7/gcc_64/include/QtWidgets -I/opt/Qt5.7.1/5.7/gcc_64/include/QtGui -I/opt/Qt5.7.1/5.7/gcc_64/include/QtSerialPort -I/opt/Qt5.7.1/5.7/gcc_64/include/QtCore -I. -I/usr/include/c++/5 -I/usr/include/x86_64-linux-gnu/c++/5 -I/usr/include/c++/5/backward -I/usr/lib/gcc/x86_64-linux-gnu/5/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include ../PLCDriveCode/mainwindow.h -o moc_mainwindow.cpp
@@ -1411,7 +1438,7 @@ compiler_yacc_impl_make_all:
 compiler_yacc_impl_clean:
 compiler_lex_make_all:
 compiler_lex_clean:
-compiler_clean: compiler_moc_header_clean compiler_uic_clean 
+compiler_clean: compiler_rcc_clean compiler_moc_header_clean compiler_uic_clean 
 
 ####### Compile
 
@@ -1588,6 +1615,8 @@ main.o: ../PLCDriveCode/main.cpp ../PLCDriveCode/mainwindow.h \
 		/opt/Qt5.7.1/5.7/gcc_64/include/QtGui/qpen.h \
 		/opt/Qt5.7.1/5.7/gcc_64/include/QtWidgets/QLineEdit \
 		/opt/Qt5.7.1/5.7/gcc_64/include/QtWidgets/qlineedit.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtWidgets/QLabel \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtWidgets/qlabel.h \
 		/opt/Qt5.7.1/5.7/gcc_64/include/QtWidgets/QApplication \
 		/opt/Qt5.7.1/5.7/gcc_64/include/QtWidgets/qapplication.h \
 		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qcoreapplication.h \
@@ -1770,6 +1799,8 @@ mainwindow.o: ../PLCDriveCode/mainwindow.cpp ../PLCDriveCode/mainwindow.h \
 		/opt/Qt5.7.1/5.7/gcc_64/include/QtGui/qpen.h \
 		/opt/Qt5.7.1/5.7/gcc_64/include/QtWidgets/QLineEdit \
 		/opt/Qt5.7.1/5.7/gcc_64/include/QtWidgets/qlineedit.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtWidgets/QLabel \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtWidgets/qlabel.h \
 		ui_mainwindow.h \
 		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QVariant \
 		/opt/Qt5.7.1/5.7/gcc_64/include/QtWidgets/QAction \
@@ -1789,13 +1820,14 @@ mainwindow.o: ../PLCDriveCode/mainwindow.cpp ../PLCDriveCode/mainwindow.h \
 		/opt/Qt5.7.1/5.7/gcc_64/include/QtWidgets/QMenuBar \
 		/opt/Qt5.7.1/5.7/gcc_64/include/QtWidgets/qmenubar.h \
 		/opt/Qt5.7.1/5.7/gcc_64/include/QtWidgets/qmenu.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtWidgets/QPushButton \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtWidgets/qpushbutton.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtWidgets/qabstractbutton.h \
 		/opt/Qt5.7.1/5.7/gcc_64/include/QtWidgets/QStatusBar \
 		/opt/Qt5.7.1/5.7/gcc_64/include/QtWidgets/qstatusbar.h \
 		/opt/Qt5.7.1/5.7/gcc_64/include/QtWidgets/QToolBar \
 		/opt/Qt5.7.1/5.7/gcc_64/include/QtWidgets/qtoolbar.h \
 		/opt/Qt5.7.1/5.7/gcc_64/include/QtWidgets/QWidget \
-		/opt/Qt5.7.1/5.7/gcc_64/include/QtWidgets/QLabel \
-		/opt/Qt5.7.1/5.7/gcc_64/include/QtWidgets/qlabel.h \
 		/opt/Qt5.7.1/5.7/gcc_64/include/QtWidgets/QVBoxLayout \
 		/opt/Qt5.7.1/5.7/gcc_64/include/QtWidgets/qboxlayout.h \
 		/opt/Qt5.7.1/5.7/gcc_64/include/QtWidgets/qlayout.h \
@@ -2218,7 +2250,9 @@ analysisdatalib.o: ../PLCDriveCode/ConfigfileRW/analysisdatalib.cpp ../PLCDriveC
 		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QThread \
 		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qthread.h \
 		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QMutexLocker \
-		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qmath.h
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qmath.h \
+		../PLCDriveCode/CommandFun/RelMov/relmovcommand.h \
+		../PLCDriveCode/CommandFun/SetADS/setaccdecspeedcmd.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o analysisdatalib.o ../PLCDriveCode/ConfigfileRW/analysisdatalib.cpp
 
 g00_pulgin.o: ../PLCDriveCode/CommandFun/G00_Pulgin/g00_pulgin.cpp ../PLCDriveCode/CommandFun/G00_Pulgin/g00_pulgin.h \
@@ -2815,6 +2849,276 @@ setaccdecspeedcmd.o: ../PLCDriveCode/CommandFun/SetADS/setaccdecspeedcmd.cpp ../
 		../PLCDriveCode/SDK/include/hwconfig.h \
 		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QMap
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o setaccdecspeedcmd.o ../PLCDriveCode/CommandFun/SetADS/setaccdecspeedcmd.cpp
+
+son.o: ../PLCDriveCode/CommandFun/SON/son.cpp ../PLCDriveCode/CommandFun/SON/son.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QObject \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qobject.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qobjectdefs.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qnamespace.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qglobal.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qconfig.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qfeatures.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qsystemdetection.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qprocessordetection.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qcompilerdetection.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qtypeinfo.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qtypetraits.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qisenum.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qsysinfo.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qlogging.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qflags.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qatomic.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qbasicatomic.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qatomic_bootstrap.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qgenericatomic.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qatomic_cxx11.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qatomic_msvc.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qglobalstatic.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qmutex.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qnumeric.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qversiontagging.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qobjectdefs_impl.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qstring.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qchar.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qbytearray.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qrefcount.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qarraydata.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qstringbuilder.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qlist.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qalgorithms.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qiterator.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qhashfunctions.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qpair.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qbytearraylist.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qstringlist.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qregexp.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qstringmatcher.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qcoreevent.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qscopedpointer.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qmetatype.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qvarlengtharray.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qcontainerfwd.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qobject_impl.h \
+		../PLCDriveCode/SDK/include/funmoduleinterface.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QtPlugin \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qplugin.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qpointer.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qsharedpointer.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qshareddata.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qhash.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qsharedpointer_impl.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qjsonobject.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qjsonvalue.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QString \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QPoint \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qpoint.h \
+		../PLCDriveCode/serialdataframe.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QQueue \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qqueue.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QMutex \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QPair \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QVector \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qvector.h \
+		../PLCDriveCode/SDK/include/MyGlobal.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QThread \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qthread.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QMutexLocker \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qmath.h \
+		../PLCDriveCode/SDK/include/MyEC_Shared.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QDebug \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qdebug.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qmap.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qtextstream.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qiodevice.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qlocale.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qvariant.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qset.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qcontiguouscache.h \
+		../PLCDriveCode/SDK/include/myshareconfig.h \
+		../PLCDriveCode/SDK/include/hwconfig.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QMap
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o son.o ../PLCDriveCode/CommandFun/SON/son.cpp
+
+soff.o: ../PLCDriveCode/CommandFun/SOFF/soff.cpp ../PLCDriveCode/CommandFun/SOFF/soff.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QObject \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qobject.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qobjectdefs.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qnamespace.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qglobal.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qconfig.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qfeatures.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qsystemdetection.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qprocessordetection.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qcompilerdetection.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qtypeinfo.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qtypetraits.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qisenum.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qsysinfo.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qlogging.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qflags.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qatomic.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qbasicatomic.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qatomic_bootstrap.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qgenericatomic.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qatomic_cxx11.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qatomic_msvc.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qglobalstatic.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qmutex.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qnumeric.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qversiontagging.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qobjectdefs_impl.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qstring.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qchar.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qbytearray.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qrefcount.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qarraydata.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qstringbuilder.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qlist.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qalgorithms.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qiterator.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qhashfunctions.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qpair.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qbytearraylist.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qstringlist.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qregexp.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qstringmatcher.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qcoreevent.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qscopedpointer.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qmetatype.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qvarlengtharray.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qcontainerfwd.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qobject_impl.h \
+		../PLCDriveCode/SDK/include/funmoduleinterface.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QtPlugin \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qplugin.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qpointer.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qsharedpointer.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qshareddata.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qhash.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qsharedpointer_impl.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qjsonobject.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qjsonvalue.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QString \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QPoint \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qpoint.h \
+		../PLCDriveCode/serialdataframe.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QQueue \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qqueue.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QMutex \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QPair \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QVector \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qvector.h \
+		../PLCDriveCode/SDK/include/MyGlobal.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QThread \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qthread.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QMutexLocker \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qmath.h \
+		../PLCDriveCode/SDK/include/MyEC_Shared.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QDebug \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qdebug.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qmap.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qtextstream.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qiodevice.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qlocale.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qvariant.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qset.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qcontiguouscache.h \
+		../PLCDriveCode/SDK/include/myshareconfig.h \
+		../PLCDriveCode/SDK/include/hwconfig.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QMap
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o soff.o ../PLCDriveCode/CommandFun/SOFF/soff.cpp
+
+reset.o: ../PLCDriveCode/CommandFun/Reset/reset.cpp ../PLCDriveCode/CommandFun/Reset/reset.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QObject \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qobject.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qobjectdefs.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qnamespace.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qglobal.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qconfig.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qfeatures.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qsystemdetection.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qprocessordetection.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qcompilerdetection.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qtypeinfo.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qtypetraits.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qisenum.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qsysinfo.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qlogging.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qflags.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qatomic.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qbasicatomic.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qatomic_bootstrap.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qgenericatomic.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qatomic_cxx11.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qatomic_msvc.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qglobalstatic.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qmutex.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qnumeric.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qversiontagging.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qobjectdefs_impl.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qstring.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qchar.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qbytearray.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qrefcount.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qarraydata.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qstringbuilder.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qlist.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qalgorithms.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qiterator.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qhashfunctions.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qpair.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qbytearraylist.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qstringlist.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qregexp.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qstringmatcher.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qcoreevent.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qscopedpointer.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qmetatype.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qvarlengtharray.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qcontainerfwd.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qobject_impl.h \
+		../PLCDriveCode/SDK/include/funmoduleinterface.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QtPlugin \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qplugin.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qpointer.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qsharedpointer.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qshareddata.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qhash.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qsharedpointer_impl.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qjsonobject.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qjsonvalue.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QString \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QPoint \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qpoint.h \
+		../PLCDriveCode/serialdataframe.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QQueue \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qqueue.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QMutex \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QPair \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QVector \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qvector.h \
+		../PLCDriveCode/SDK/include/MyGlobal.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QThread \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qthread.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QMutexLocker \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qmath.h \
+		../PLCDriveCode/SDK/include/MyEC_Shared.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QDebug \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qdebug.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qmap.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qtextstream.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qiodevice.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qlocale.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qvariant.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qset.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qcontiguouscache.h \
+		../PLCDriveCode/SDK/include/myshareconfig.h \
+		../PLCDriveCode/SDK/include/hwconfig.h \
+		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QMap
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o reset.o ../PLCDriveCode/CommandFun/Reset/reset.cpp
+
+qrc_ico.o: qrc_ico.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o qrc_ico.o qrc_ico.cpp
 
 moc_mainwindow.o: moc_mainwindow.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_mainwindow.o moc_mainwindow.cpp

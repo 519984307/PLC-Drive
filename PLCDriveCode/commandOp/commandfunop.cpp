@@ -9,32 +9,23 @@ CommandFunOp::CommandFunOp()
     m_pThreadObjMap.clear();
     m_MonTimer = new QTimer(this);
     m_exetaskid = -1;
+    m_rectaskid = -1;
+    memset(m_change,0,10);
+    m_pRunstatTimer = new QTimer(this);
 }
 ///
 /// \brief CommandFunOp::～CommandFunOp
 /// 关闭文件的时候调用所有的数据进行关闭
 CommandFunOp::~CommandFunOp()
 {
-    //停止掉所有的流程，线程退出
-    for(auto it = m_pThreadObjMap.begin(); it != m_pThreadObjMap.end();++it)
-    {
-        if( it.value().first->isRunning())
-        {
-            auto item = m_pfunMap[it.key()].begin();
-            for(;item!=m_pfunMap[it.key()].end();++item)
-            {
-                if(  item.value())
-                {
-                    item.value()->isTerminate = true;
-                }
-            }
-            it.value().first->quit();
-            it.value().first->wait();
-        }
-    }
     if(m_MonTimer)
     {
         m_MonTimer->stop();
+        delete m_MonTimer;
+    }
+    if(m_pRunstatTimer)
+    {
+        m_pRunstatTimer->stop();
         delete m_MonTimer;
     }
     if(InOutPutData::GetInstance()->outPutNum > 0)
@@ -87,6 +78,8 @@ bool CommandFunOp::InitAllParam()
             m_ec.Start();
             connect(m_MonTimer,&QTimer::timeout,this,&CommandFunOp::slotMonitorTimer);
             m_MonTimer->start(200);
+            connect(m_pRunstatTimer,&QTimer::timeout,this,&CommandFunOp::slotMonitorRunStateTimer);
+            m_pRunstatTimer->start(20);
         }
     }
     else {
@@ -114,17 +107,17 @@ void CommandFunOp::slotRecPlcCmdData(uint8_t funcmd,cmdstru stru)
     uint8_t id = -1;
     switch (funcmd) {
     case cmdname::None:
-    {
         break;
-    }
     case cmdname::MOV_SPEED:
     {
+        // id = stru..dataheader.badrID;
         cmd = "MOV_SPEED";
         CmdThreadRun(cmd,stru,id,funcmd);
         break;
     }
     case cmdname::MOV_ORG:
     {
+        id = stru.orgstru.dataheader.badrID;
         cmd = "MOV_ORG";
         CmdThreadRun(cmd,stru,id,funcmd);
         break;
@@ -147,14 +140,15 @@ void CommandFunOp::slotRecPlcCmdData(uint8_t funcmd,cmdstru stru)
     case cmdname::SETACCDEC:// 主线程
     {
         id = stru.setparamstru.dataheader.badrID;
+        MyShareconfig::GetInstance()->m_Runstate[id] = 1;
         cmd = "SETACCDEC";
         m_exetaskid++;
         QVector<uint> values;
-        stru.setparamstru.acc;
         values.append(stru.setparamstru.acc);
         values.append(stru.setparamstru.dec);
         values.append(stru.setparamstru.speed);
         m_othercmd.SetAxisParam(values,id);
+        MyShareconfig::GetInstance()->m_Runstate[id] = 0;
         break;
     }
     case cmdname::SETSOFTLINMITPOS:
@@ -185,10 +179,7 @@ void CommandFunOp::slotRecPlcCmdData(uint8_t funcmd,cmdstru stru)
         QVector<int> values = m_othercmd.GetCurValuefun(id,4);
         if(values.size() == 1)
         {
-            cmdstru sendstru;
-            sendstru.runstatestru.dataheader = stru.runstatestru.dataheader;
-            sendstru.runstatestru.state = values[0];
-            m_pserialportob.SendStruDataToPLC(RUNSTATE,sendstru);
+            SendRunstate(stru.runstatestru.dataheader.badrID,values[0]);
         }
         break;
     }
@@ -226,6 +217,33 @@ void CommandFunOp::slotRecPlcCmdData(uint8_t funcmd,cmdstru stru)
         cmd = "GETENCODER";
         m_exetaskid++;
         break;
+    case cmdname::SETSON: //考量是否用线程做
+    {
+        m_exetaskid++;
+        id = stru.sonstru.dataheader.badrID;
+        MyShareconfig::GetInstance()->m_Runstate[id] = 1;
+        m_othercmd.SetAxisSon(id);
+        MyShareconfig::GetInstance()->m_Runstate[id] = 0;
+        break;
+    }
+    case cmdname::SETOFF://考量是否用线程做
+    {
+        m_exetaskid++;
+        id = stru.soffstru.dataheader.badrID;
+        MyShareconfig::GetInstance()->m_Runstate[id] = 1;
+        m_othercmd.SetAxisSoff(id);
+        MyShareconfig::GetInstance()->m_Runstate[id] = 0;
+        break;
+    }
+    case cmdname::SETRESET:
+    {
+        m_exetaskid++;
+        MyShareconfig::GetInstance()->m_Runstate[id] = 1;
+        id = stru.resetstru.dataheader.badrID;
+        m_othercmd.SetAxisReset(id);
+        MyShareconfig::GetInstance()->m_Runstate[id] = 0;
+        break;
+    }
     default:
         break;
     }
@@ -235,20 +253,22 @@ void CommandFunOp::slotRecPlcCmdData(uint8_t funcmd,cmdstru stru)
 }
 ///
 /// \brief CommandFunOp::slotMonitorTimer
-///监视通迅状态
-bool statflag = false;
+///监视 所有的状态字状态
+bool statflag = true;
 void CommandFunOp::slotMonitorTimer()
 {
     //ec 状态监视
     ////    if(!statflag)
     //    {
-    //        if(!InOutPutData::GetInstance()->isRunning)
-    //        {
-    //         //   CoreLog::QLog_Error("Test","ECthercat主站停止了...");
-    //            statflag = true;
-    ////            QString error = "ECthercat主站停止了...";
-    //         //   emit signalShowInfo(error);
-    ////        }
+    if(InOutPutData::GetInstance()->isRunning&&statflag)
+    {
+        //所有轴复位
+        for(int i = 0; i < m_threadidvec.size(); ++i)
+        {
+            m_othercmd.SetAxisReset(m_threadidvec[i]);
+        }
+        statflag = false;
+    }
     //  else{
     QVector<int> curposvec =  m_othercmd.GetCurValuefun(m_threadidvec,1);//绝对位置
     QVector<int> errcode  = m_othercmd.GetCurValuefun(m_threadidvec,2);//故障代码
@@ -275,31 +295,15 @@ void CommandFunOp::slotRunEnd(uint8_t cmd,cmdstru stru, int taskid,QString msg)
 {
     int id = -1;
     QString cmdstr;
-    switch (cmd) {
-    case cmdname::MOV_RELPP:
-        id = stru.ppstru.dataheader.badrID;
-        cmdstr = "MOV_RELPP";
-        break;
-    case  cmdname::MOV_ABSPP:
-        id = stru.ppstru.dataheader.badrID;
-        cmdstr = "MOV_ABSPP";
-        break;
-    case  cmdname::MOV_ORG:
-        cmdstr = "MOV_ORG";
-        break;
-    case cmdname::SETACCDEC:
-        id = stru.setparamstru.dataheader.badrID;
-        break;
-    default:
-        break;
-    }
+    id = Getcmdidandname(cmdstr,cmd,stru);
     if(m_pThreadObjMap.contains(id))
     {
         m_pThreadObjMap[id].first->quit();
         m_pThreadObjMap[id].first->wait();
         if(m_runingtaskid.contains(id))
         {
-            m_runingtaskid.remove(id);
+            int index  = m_runingtaskid.indexOf(id);
+            m_runingtaskid.remove(index);
         }
         if(m_runcmd.contains(id))
         {
@@ -310,7 +314,24 @@ void CommandFunOp::slotRunEnd(uint8_t cmd,cmdstru stru, int taskid,QString msg)
     //运动指令完成的索引号
     QString info =  "["+QString::number(taskid) + "]" + " 结束指令信息:"+cmdstr+":"+msg;
     CoreLog::QLog_Info("Test",info);
-    emit signaltaskInfo(msg);
+    emit signaltaskInfo(info);
+}
+///
+/// \brief CommandFunOp::slotMonitorRunStateTimer
+///独立刷新运行状态周期值，20ms一次更新
+void CommandFunOp::slotMonitorRunStateTimer()
+{
+    QVector<int> runstate = m_othercmd.GetCurValuefun(m_threadidvec,4);//运行状态
+    for(int i =0; (i < runstate.size())&& (i< m_threadidvec.size()); ++i)
+    {
+        int    id =   m_threadidvec[i];
+        if(m_change[id]!=runstate[i])
+        {
+            m_change[id] = runstate[i]; //需要发送状态信息给plc
+            qDebug()<<"某个轴的运行状态发生了改变:"<<m_change[id] <<id ;
+            SendRunstate(m_threadidvec[i],m_change[id]);
+        }
+    }
 }
 ///
 /// \brief CommandFunOp::GetAllAxisID
@@ -327,13 +348,21 @@ void CommandFunOp::GetAllAxisID()
             {
                 if(item.value().hwtype == "1")
                 {
-                    if(!m_threadidvec.contains(item.value().addr))
+                    if(item.value().addr<16&&item.value().addr>0)
                     {
-                        m_threadidvec.append(item.value().addr);
-                        if(m_threadidvec.size() >= ORDERTHREADNUM)
+                        if(!m_threadidvec.contains(item.value().addr))
                         {
-                            return;
+                            m_threadidvec.append(item.value().addr);
+                            if(m_threadidvec.size() >= ORDERTHREADNUM)
+                            {
+                                return;
+                            }
                         }
+                    }
+                    else{
+                        CoreLog::QLog_Error("Test","轴的字节地址取值范围0-16,请重新配置");
+                        QString error = "轴的字节地址取值范围0-16,请重新配置";
+                        emit signalShowInfo(error);
                     }
                 }
             }
@@ -427,6 +456,76 @@ void CommandFunOp::StopRunningCmd(int id)
             }
         }
     }
+}
+
+void CommandFunOp::Stop()
+{
+    //停止掉所有的流程，线程退出
+    for(auto it = m_pThreadObjMap.begin(); it != m_pThreadObjMap.end();++it)
+    {
+        if( it.value().first->isRunning())
+        {
+            auto item = m_pfunMap[it.key()].begin();
+            for(;item!=m_pfunMap[it.key()].end();++item)
+            {
+                if(  item.value())
+                {
+                    item.value()->isTerminate = true;
+                }
+            }
+            it.value().first->quit();
+            it.value().first->wait();
+        }
+    }
+}
+
+void CommandFunOp::SendRunstate(uint8_t id, char value)
+{
+    cmdstru sendstru;
+    sendstru.runstatestru.dataheader.badrID = id;
+    sendstru.runstatestru.dataheader.bcmd = RUNSTATE;
+    sendstru.runstatestru.dataheader.bdatalen = 1;
+    sendstru.runstatestru.dataheader.bType =1;
+    sendstru.runstatestru.state = value ;
+    m_pserialportob.SendStruDataToPLC(RUNSTATE,sendstru);
+}
+
+int CommandFunOp::Getcmdidandname(QString &cmdstr, uint8_t cmd, cmdstru stru)
+{
+    int id = -1;
+    switch (cmd) {
+    case cmdname::MOV_RELPP:
+        id = stru.ppstru.dataheader.badrID;
+        cmdstr = "MOV_RELPP";
+        break;
+    case  cmdname::MOV_ABSPP:
+        id = stru.ppstru.dataheader.badrID;
+        cmdstr = "MOV_ABSPP";
+        break;
+    case  cmdname::MOV_ORG:
+        cmdstr = "MOV_ORG";
+        id = stru.orgstru.dataheader.badrID;
+        break;
+    case cmdname::SETACCDEC:
+        id = stru.setparamstru.dataheader.badrID;
+        cmdstr = "SETACCDEC";
+        break;
+    case cmdname::SETOFF:
+        id = stru.soffstru.dataheader.badrID;
+        cmdstr = "SETOFF";
+        break;
+    case cmdname::SETSON:
+        id = stru.sonstru.dataheader.badrID;
+        cmdstr = "SETSON";
+        break;
+    case cmdname::SETRESET:
+        id = stru.resetstru.dataheader.badrID;
+        cmdstr = "SETRESET";
+        break;
+    default:
+        break;
+    }
+    return id;
 }
 
 

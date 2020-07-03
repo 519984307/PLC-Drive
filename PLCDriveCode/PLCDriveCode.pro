@@ -38,7 +38,12 @@ SOURCES += \
     commandOp/sendcommandsclass.cpp \
     commandOp/taskmangerclass.cpp \
     CommandFun/RelMov/relmovcommand.cpp \
-    CommandFun/SetADS/setaccdecspeedcmd.cpp
+    CommandFun/SetADS/setaccdecspeedcmd.cpp \
+    CommandFun/SON/son.cpp \
+    CommandFun/SOFF/soff.cpp \
+    CommandFun/Reset/reset.cpp
+
+
 
 
 
@@ -57,7 +62,11 @@ HEADERS += \
     commandOp/sendcommandsclass.h \
     commandOp/taskmangerclass.h \
     CommandFun/RelMov/relmovcommand.h \
-    CommandFun/SetADS/setaccdecspeedcmd.h
+    CommandFun/SetADS/setaccdecspeedcmd.h \
+    CommandFun/SON/son.h \
+    CommandFun/SOFF/soff.h \
+    CommandFun/Reset/reset.h
+
 
 
 FORMS += \
@@ -67,3 +76,6 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    ico.qrc

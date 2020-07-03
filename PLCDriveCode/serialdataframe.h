@@ -74,9 +74,12 @@ typedef enum cmdname{
     RUNSTATE = 7,
     GETABS = 8,
     GETENCODER = 9,
-    GETERRORCODE = 10,
-    SETACCDEC = 11,
-    SETSOFTLINMITPOS=12,
+    SETACCDEC = 10,
+    SETSOFTLINMITPOS=11,
+    GETERRORCODE = 15,
+    SETSON = 16,
+    SETOFF = 17,
+    SETRESET = 18,
 }cmdname;
 //MOV_ABSPP || //MOV_RELPP 绝对运动或者相对运动信息结构体
 typedef struct {
@@ -109,6 +112,26 @@ typedef struct {
     DataFramehead  dataheader;
    uint16_t errcode;
 }geterrorcodecmdstru;
+//mov_org
+typedef struct {
+    DataFramehead  dataheader;
+    uint searchswspeed;
+    uint searchzerospeed;
+    uint acc;
+    uint8_t method;
+}orgcmdstru;
+//son 指令
+typedef struct {
+    DataFramehead  dataheader;
+}soncmdstru;
+//soff
+typedef struct {
+    DataFramehead  dataheader;
+}soffcmdstru;
+//reset
+typedef struct {
+    DataFramehead  dataheader;
+}resetcmdstru;
 ///各个命令结构体总
 typedef struct{
     ppcmdstru ppstru;
@@ -117,6 +140,10 @@ typedef struct{
     getabsposcmdstru getposstru;
     getrunsatecmdstru  runstatestru;
     geterrorcodecmdstru errorcodestru;
+    orgcmdstru orgstru;
+    soncmdstru sonstru;
+    soffcmdstru soffstru;
+    resetcmdstru resetstru;
 }cmdstru;
 //基本数据
 class BaseCommands

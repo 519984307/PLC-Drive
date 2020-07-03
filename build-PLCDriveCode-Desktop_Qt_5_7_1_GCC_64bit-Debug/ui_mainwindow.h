@@ -16,6 +16,7 @@
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenuBar>
+#include <QtWidgets/QPushButton>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QToolBar>
 #include <QtWidgets/QWidget>
@@ -26,6 +27,7 @@ class Ui_MainWindow
 {
 public:
     QWidget *centralWidget;
+    QPushButton *pushButton;
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
@@ -35,8 +37,41 @@ public:
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QStringLiteral("MainWindow"));
         MainWindow->resize(400, 300);
+        MainWindow->setLayoutDirection(Qt::LeftToRight);
+        MainWindow->setStyleSheet(QStringLiteral(""));
+        MainWindow->setIconSize(QSize(32, 32));
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
+        pushButton = new QPushButton(centralWidget);
+        pushButton->setObjectName(QStringLiteral("pushButton"));
+        pushButton->setEnabled(true);
+        pushButton->setGeometry(QRect(250, 120, 71, 25));
+        QSizePolicy sizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(pushButton->sizePolicy().hasHeightForWidth());
+        pushButton->setSizePolicy(sizePolicy);
+        pushButton->setMinimumSize(QSize(0, 0));
+        pushButton->setMaximumSize(QSize(72, 25));
+        pushButton->setBaseSize(QSize(0, 0));
+        QFont font;
+        font.setFamily(QStringLiteral("Sans Serif"));
+        font.setPointSize(10);
+        font.setBold(false);
+        font.setItalic(false);
+        font.setWeight(50);
+        font.setKerning(false);
+        pushButton->setFont(font);
+        pushButton->setFocusPolicy(Qt::ClickFocus);
+        pushButton->setLayoutDirection(Qt::RightToLeft);
+        pushButton->setAutoFillBackground(false);
+        pushButton->setStyleSheet(QStringLiteral("color: rgb(170, 0, 0);"));
+        QIcon icon;
+        icon.addFile(QStringLiteral(":/image/shutdown.png"), QSize(), QIcon::Normal, QIcon::Off);
+        pushButton->setIcon(icon);
+        pushButton->setIconSize(QSize(25, 25));
+        pushButton->setAutoDefault(false);
+        pushButton->setFlat(true);
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
@@ -57,6 +92,7 @@ public:
     void retranslateUi(QMainWindow *MainWindow)
     {
         MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", Q_NULLPTR));
+        pushButton->setText(QApplication::translate("MainWindow", "\345\205\263\351\227\255", Q_NULLPTR));
     } // retranslateUi
 
 };
