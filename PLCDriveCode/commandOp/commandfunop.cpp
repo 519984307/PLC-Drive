@@ -105,6 +105,7 @@ void CommandFunOp::slotRecPlcCmdData(uint8_t funcmd,cmdstru stru)
     m_rectaskid++;// 每次任务来都会执行任务索引进行记录
     QString cmd ="";
     uint8_t id = -1;
+    bool busy = false;
     switch (funcmd) {
     case cmdname::None:
         break;
@@ -140,6 +141,12 @@ void CommandFunOp::slotRecPlcCmdData(uint8_t funcmd,cmdstru stru)
     case cmdname::SETACCDEC:// 主线程
     {
         id = stru.setparamstru.dataheader.badrID;
+        if(MyShareconfig::GetInstance()->m_Runstate[id] == 1)
+        {
+            busy = true;
+            SendRunstate(id,1);
+            break;
+        }
         MyShareconfig::GetInstance()->m_Runstate[id] = 1;
         cmd = "SETACCDEC";
         m_exetaskid++;
@@ -160,6 +167,7 @@ void CommandFunOp::slotRecPlcCmdData(uint8_t funcmd,cmdstru stru)
         // 执行停止动作的指令
         m_exetaskid++;
         StopRunningCmd(id);//改变在运行状态的轴
+        qDebug()<<"STOP"<<id;
         break;
     }
     case cmdname::STOP:// 主线程调用，子线程接受
@@ -221,6 +229,12 @@ void CommandFunOp::slotRecPlcCmdData(uint8_t funcmd,cmdstru stru)
     {
         m_exetaskid++;
         id = stru.sonstru.dataheader.badrID;
+        if(MyShareconfig::GetInstance()->m_Runstate[id] == 1)//
+        {
+            busy = true;
+            SendRunstate(id,1);// 忙碌中
+            break;
+        }
         MyShareconfig::GetInstance()->m_Runstate[id] = 1;
         m_othercmd.SetAxisSon(id);
         MyShareconfig::GetInstance()->m_Runstate[id] = 0;
@@ -230,6 +244,12 @@ void CommandFunOp::slotRecPlcCmdData(uint8_t funcmd,cmdstru stru)
     {
         m_exetaskid++;
         id = stru.soffstru.dataheader.badrID;
+        if(MyShareconfig::GetInstance()->m_Runstate[id] == 1)
+        {
+            busy = true;
+            SendRunstate(id,1);// 忙碌中
+            break;
+        }
         MyShareconfig::GetInstance()->m_Runstate[id] = 1;
         m_othercmd.SetAxisSoff(id);
         MyShareconfig::GetInstance()->m_Runstate[id] = 0;
@@ -238,8 +258,14 @@ void CommandFunOp::slotRecPlcCmdData(uint8_t funcmd,cmdstru stru)
     case cmdname::SETRESET:
     {
         m_exetaskid++;
-        MyShareconfig::GetInstance()->m_Runstate[id] = 1;
         id = stru.resetstru.dataheader.badrID;
+        if(MyShareconfig::GetInstance()->m_Runstate[id] == 1)
+        {
+            busy = true;
+            SendRunstate(id,1);// 忙碌中
+            break;
+        }
+        MyShareconfig::GetInstance()->m_Runstate[id] = 1;
         m_othercmd.SetAxisReset(id);
         MyShareconfig::GetInstance()->m_Runstate[id] = 0;
         break;
@@ -247,9 +273,14 @@ void CommandFunOp::slotRecPlcCmdData(uint8_t funcmd,cmdstru stru)
     default:
         break;
     }
-    QString taskinfo =   m_tasklog.RecoderTaskCmd(m_exetaskid,funcmd,stru);
-    taskinfo= taskinfo +" ;接受到的索引号："+QString::number(m_rectaskid);
+    QString taskinfo =  m_tasklog.RecoderTaskCmd(m_exetaskid,funcmd,stru);
+    taskinfo= taskinfo +" ;接收到的索引号："+QString::number(m_rectaskid);
+    if(busy)
+    {
+        taskinfo= taskinfo +" ;执行索引号："+QString::number(m_rectaskid)+" 状态忙碌，无法执行";
+    }
     emit signaltaskInfo(taskinfo);
+
 }
 ///
 /// \brief CommandFunOp::slotMonitorTimer
@@ -348,7 +379,7 @@ void CommandFunOp::GetAllAxisID()
             {
                 if(item.value().hwtype == "1")
                 {
-                    if(item.value().addr<16&&item.value().addr>0)
+                    if(item.value().addr<AXISADDRIDNUM&&item.value().addr>=0)
                     {
                         if(!m_threadidvec.contains(item.value().addr))
                         {
@@ -395,6 +426,7 @@ void CommandFunOp::SetPluginsMap()
 ///
 void CommandFunOp::CmdThreadRun(QString str, cmdstru stru, uint8_t id,uint8_t cmd)
 {
+
     if(m_pfunMap.contains(id))
     {
         if(m_pfunMap[id].contains(str))
@@ -421,7 +453,7 @@ void CommandFunOp::CmdThreadRun(QString str, cmdstru stru, uint8_t id,uint8_t cm
                 pthread->start();
             }
             else{
-                if(!m_pThreadObjMap[id].first->isRunning())
+                if((!m_pThreadObjMap[id].first->isRunning())&&(MyShareconfig::GetInstance()->m_Runstate[id] == 0) )
                 {
                     m_exetaskid++;
                     m_pThreadObjMap[id].second->SetCommandsParam(cmd,stru,m_pfunMap[id][str],m_exetaskid);
@@ -429,6 +461,12 @@ void CommandFunOp::CmdThreadRun(QString str, cmdstru stru, uint8_t id,uint8_t cm
                     m_runcmd.insert(id,str);
                     MyShareconfig::GetInstance()->m_Runstate[id] =1;
                     m_pThreadObjMap[id].first->start();
+                }
+                else{
+                    SendRunstate(id,1);// 忙碌中
+                    QString taskinfo =  m_tasklog.RecoderTaskCmd(m_exetaskid,cmd,stru);
+                    taskinfo = taskinfo +" ;执行索引号："+QString::number(m_rectaskid)+" 状态忙碌，无法执行";
+                    emit signaltaskInfo(taskinfo);
                 }
             }
         }
@@ -447,11 +485,15 @@ void CommandFunOp::StopRunningCmd(int id)
     {
         if(m_pThreadObjMap[id].first->isRunning())
         {
+            qDebug()<<" 线程正在运行";
             if(m_pfunMap.contains(id) && m_runcmd.contains(id))
             {
+                    qDebug()<<" 指令运行";
                 if( m_pfunMap[id].contains(m_runcmd[id]))
                 {
+
                     m_pfunMap[id][m_runcmd[id]]->isTerminate = true;
+
                 }
             }
         }
@@ -495,7 +537,7 @@ int CommandFunOp::Getcmdidandname(QString &cmdstr, uint8_t cmd, cmdstru stru)
     int id = -1;
     switch (cmd) {
     case cmdname::MOV_RELPP:
-        id = stru.ppstru.dataheader.badrID;
+        id= stru.ppstru.dataheader.badrID;;
         cmdstr = "MOV_RELPP";
         break;
     case  cmdname::MOV_ABSPP:

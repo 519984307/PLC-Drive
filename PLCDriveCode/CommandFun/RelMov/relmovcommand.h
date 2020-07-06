@@ -34,7 +34,6 @@ private:
    QVector<QPair<int,int>> m_tempInOP;
    QVector<QPair<int,int>> m_tempOutOP;
    QVector<QPair<int,int>> m_tempOFFSON;
-  bool isTerminate ;
   bool  m_isInitStatOk;
   ppcmdstru m_relstru;
    int m_axisid;

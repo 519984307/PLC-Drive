@@ -673,6 +673,7 @@ qrc_ico.cpp: ../PLCDriveCode/ico.qrc \
 		/opt/Qt5.7.1/5.7/gcc_64/bin/rcc \
 		../PLCDriveCode/image/shutdown.png \
 		../PLCDriveCode/image/green.png \
+		../PLCDriveCode/image/clear.png \
 		../PLCDriveCode/image/red.png
 	/opt/Qt5.7.1/5.7/gcc_64/bin/rcc -name ico ../PLCDriveCode/ico.qrc -o qrc_ico.cpp
 
@@ -2252,7 +2253,10 @@ analysisdatalib.o: ../PLCDriveCode/ConfigfileRW/analysisdatalib.cpp ../PLCDriveC
 		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/QMutexLocker \
 		/opt/Qt5.7.1/5.7/gcc_64/include/QtCore/qmath.h \
 		../PLCDriveCode/CommandFun/RelMov/relmovcommand.h \
-		../PLCDriveCode/CommandFun/SetADS/setaccdecspeedcmd.h
+		../PLCDriveCode/CommandFun/SetADS/setaccdecspeedcmd.h \
+		../PLCDriveCode/CommandFun/Reset/reset.h \
+		../PLCDriveCode/CommandFun/SOFF/soff.h \
+		../PLCDriveCode/CommandFun/SON/son.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o analysisdatalib.o ../PLCDriveCode/ConfigfileRW/analysisdatalib.cpp
 
 g00_pulgin.o: ../PLCDriveCode/CommandFun/G00_Pulgin/g00_pulgin.cpp ../PLCDriveCode/CommandFun/G00_Pulgin/g00_pulgin.h \

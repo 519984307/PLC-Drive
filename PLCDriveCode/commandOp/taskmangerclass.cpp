@@ -65,8 +65,9 @@ QString TaskMangerClass::RecoderTaskCmd(int index,uint8_t funcmd, cmdstru stru)
     }
     case  cmdname::STOP:
     case  cmdname::STOPDEC:
-    {     name = "STOP";
-        info = QString("设置轴id ：%1停止运行;").arg(stru.ppstru.dataheader.badrID);
+    {
+        name = "STOP";
+        info = QString("设置轴id ：%1停止运行;").arg(stru.stopstru.dataheader.badrID);
         break;
     }
     case cmdname::SETACCDEC:

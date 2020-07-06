@@ -58,7 +58,10 @@ MainWindow::MainWindow(QWidget *parent) :
     m_ptaskmsg = new QTextEdit(this);
     m_ptaskmsg->document()->setMaximumBlockCount(100);
     m_ptaskmsg->setAcceptRichText(true);
-    lay->addWidget(tasklabel);
+    QHBoxLayout *task = new QHBoxLayout();
+    task->addWidget(tasklabel);
+    task->addWidget(ui->pushButton_2,1,Qt::AlignLeft);
+    lay->addLayout(task);
     lay->addWidget(m_ptaskmsg);
 
     m_pshowerrorinfo = new QLineEdit(this);
@@ -74,10 +77,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_timer->start(200);
     connect(&ob,&CommandFunOp::signalShowInfo,this,&MainWindow::slotshowloginfo);
     connect(&ob,&CommandFunOp::signaltaskInfo,this,&MainWindow::slotRecordertaskinfo);
-//    QString msg = "接受指令索引运行指令";
-//    slotRecordertaskinfo(msg);
-//    msg = " 执行编号结束指令";
-//    slotRecordertaskinfo(msg);
+
 }
 
 MainWindow::~MainWindow()
@@ -163,8 +163,11 @@ void MainWindow::slotRecordertaskinfo(QString msg)
         {
             str = QString("<font color=\"#00FF00\">%1</font> ").arg(msg);
         }
-        else{
+        else if(msg.contains("接收")){
             str = QString("<font color=\"#0000FF\">%1</font> ").arg(msg);
+        }
+        else{
+            str = QString("<font color=\"#FFff00\">%1</font> ").arg(msg);
         }
         //m_ptaskmsg->moveCursor(QTextCursor::End);
         m_ptaskmsg->append(str);
@@ -174,5 +177,10 @@ void MainWindow::slotRecordertaskinfo(QString msg)
 void MainWindow::on_pushButton_clicked()//停止
 {
     ob.Stop();
-   this->close();
+    this->close();
+}
+
+void MainWindow::on_pushButton_2_clicked()
+{
+   m_ptaskmsg->clear();
 }

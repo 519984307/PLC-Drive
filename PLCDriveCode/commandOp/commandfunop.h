@@ -14,6 +14,7 @@
 #include "sendcommandsclass.h"
 #include "taskmangerclass.h"
 #define ORDERTHREADNUM 4
+#define AXISADDRIDNUM 16
 ///
 /// \brief The CommandFunOp class
 ///核心调用框架部分，加载启动，指令调用，接口关闭的任务，线程为主要的任务

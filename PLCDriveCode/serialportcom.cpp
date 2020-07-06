@@ -153,10 +153,6 @@ void SerialPortCom::Dataprocessingfun(uint8_t *data, uint8_t len)
         uint8_t cmd = m_boardData.dataheader.bcmd;
         //数据指令发到外部执行
         cmdstru  scmdstru;
-        if(lenvalue != BaseCommands::GetCmdDatalenValue(cmd))
-        {
-            continue;
-        }
         switch (cmd) {
         case cmdname::None:
             break;
@@ -197,8 +193,11 @@ void SerialPortCom::Dataprocessingfun(uint8_t *data, uint8_t len)
             break;
         }
         case cmdname::STOPDEC:
+        {
             scmdstru.stopstru.dataheader =  m_boardData.dataheader;
+            qDebug()<<"rec stop:"<<scmdstru.stopstru.dataheader.badrID;
             break;
+        }
         case cmdname::SETACCDEC:
         {
             scmdstru.setparamstru.dataheader = m_boardData.dataheader;
@@ -229,16 +228,19 @@ void SerialPortCom::Dataprocessingfun(uint8_t *data, uint8_t len)
         case cmdname::SETSON:
             scmdstru.sonstru.dataheader = m_boardData.dataheader;
             break;
-          case cmdname::SETOFF:
-              scmdstru.soffstru.dataheader = m_boardData.dataheader;
+        case cmdname::SETOFF:
+            scmdstru.soffstru.dataheader = m_boardData.dataheader;
             break;
         case cmdname::SETRESET:
-              scmdstru.resetstru.dataheader = m_boardData.dataheader;
+            scmdstru.resetstru.dataheader = m_boardData.dataheader;
             break;
         default:
             break;
         }
-        emit SignalsendDataToCmd(cmd,scmdstru);
+        if(lenvalue == BaseCommands::GetCmdDatalenValue(cmd))
+        {
+           emit SignalsendDataToCmd(cmd,scmdstru);
+        }
         alen = alen + lenvalue + 2;
     }
 }

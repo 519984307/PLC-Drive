@@ -158,7 +158,7 @@ public:
         int lenvalue = 0;
         switch (cmd) {
         case STOPDEC:
-            lenvalue = 0;
+            lenvalue = 1;
             break;
         case MOV_RELPP:
         case MOV_ABSPP:
